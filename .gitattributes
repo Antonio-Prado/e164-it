@@ -1,0 +1,14 @@
+# Normalize line endings
+* text=auto eol=lf
+
+# Common binaries
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary
+
+# Treat SVG as text (keeps diffs readable)
+*.svg text eol=lf
