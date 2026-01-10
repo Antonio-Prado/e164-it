@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>e164.it — Batch CSV</title>
+  <style>
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+    body { margin: 24px; max-width: 980px; }
+    h1 { margin: 0 0 8px; font-size: 28px; }
+    .muted { color: #666; }
+    label { display:block; font-size: 12px; color:#444; margin: 10px 0 6px; }
+    input, select, button { font: inherit; padding: 10px; border-radius: 10px; border: 1px solid #ccc; }
+    button { cursor: pointer; }
+    .row { display:grid; grid-template-columns: 1fr 220px; gap: 12px; }
+    .card { border: 1px solid #ddd; border-radius: 14px; padding: 14px; margin-top: 16px; }
+    pre { white-space: pre-wrap; word-break: break-word; }
+    .actions { display:flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; align-items: center; }
+    .pill { display:inline-block; padding:4px 10px; border-radius:999px; border:1px solid #ddd; font-size:12px; }
+  </style>
+</head>
+<body>
+  <h1>Batch CSV</h1>
+  <p class="muted">
+    Upload a CSV, pick the phone column, and download the enriched CSV (E.164, validity, masking, hash, etc.).
+  </p>
+
+  <div class="card">
+    <label>CSV file</label>
+    <input type="file" id="file" accept=".csv,text/csv" />
+
+    <div class="row" style="margin-top:12px;">
+      <div>
+        <label>Phone column (header name or 0-based index)</label>
+        <input id="phone_column" placeholder="e.g. phone or 3" value="phone" />
+      </div>
+      <div>
+        <label>Default region</label>
+        <select id="region">
+          <option value="">(auto)</option>
+          <option value="IT" selected>IT</option>
+          <option value="US">US</option>
+          <option value="GB">GB</option>
+          <option value="FR">FR</option>
+          <option value="DE">DE</option>
+          <option value="ES">ES</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="actions">
+      <label class="pill"><input type="checkbox" id="has_header" checked> has header row</label>
+
+      <label class="pill">
+        delimiter:
+        <select id="delimiter" style="margin-left:6px; padding:4px 8px;">
+          <option value="auto" selected>auto</option>
+          <option value=",">comma</option>
+          <option value=";">semicolon</option>
+          <option value="">tab</option>
+        </select>
+      </label>
+
+      <label class="pill">
+        masking:
+        <select id="mask" style="margin-left:6px; padding:4px 8px;">
+          <option value="none" selected>none</option>
+          <option value="last2">last2</option>
+          <option value="last4">last4</option>
+        </select>
+      </label>
+
+      <label class="pill"><input type="checkbox" id="hash"> hash (HMAC)</label>
+      <span id="status" class="pill">idle</span>
+    </div>
+
+    <div class="actions">
+      <button id="run">Process & Download</button>
+      <a id="download" style="display:none;" class="pill" download="e164_batch_results.csv">Download ready</a>
+    </div>
+
+    <p class="muted" style="margin-top:10px; font-size:12px;">
+      V1 limits: ~5MB max file size. For larger batches we will add async jobs (Queues/Workflows).
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="muted" style="font-size:12px;">Preview (first ~40 lines)</div>
+    <pre id="preview">—</pre>
+  </div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  function setStatus(t) {
+    $("status").textContent = t;
+  }
+
+  function previewText(text) {
+    const lines = text.split(/\r?\n/).slice(0, 40).join("\n");
+    $("preview").textContent = lines || "—";
+  }
+
+  $("run").addEventListener("click", async () => {
+    const f = $("file").files?.[0];
+    if (!f) {
+      setStatus("missing file");
+      return;
+    }
+
+    setStatus("uploading…");
+    $("download").style.display = "none";
+    $("download").removeAttribute("href");
+
+    const fd = new FormData();
+    fd.append("file", f, f.name);
+    fd.append("phone_column", $("phone_column").value.trim());
+    fd.append("default_region", $("region").value || "");
+    fd.append("has_header", $("has_header").checked ? "true" : "false");
+    fd.append("delimiter", $("delimiter").value);
+    fd.append("mask_mode", $("mask").value);
+    fd.append("hash_enabled", $("hash").checked ? "true" : "false");
+
+    try {
+      const res = await fetch("/v1/batch/parse", { method: "POST", body: fd });
+
+      if (!res.ok) {
+        const t = await res.text();
+        setStatus("error");
+        previewText(t);
+        return;
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+
+      $("download").href = url;
+      $("download").style.display = "inline-block";
+
+      // Preview
+      const txt = await blob.text();
+      previewText(txt);
+
+      setStatus("done");
+    } catch (e) {
+      setStatus("error");
+      previewText(String(e));
+    }
+  });
+</script>
+</body>
+</html>
