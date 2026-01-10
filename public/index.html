@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>e164.it</title>
+  </head>
+  <body>
+    <h1>e164.it</h1>
+    <p>Test Pages + Functions.</p>
+
+    <button id="btn">Prova /v1/parse</button>
+    <pre id="out"></pre>
+
+    <script>
+      document.getElementById('btn').addEventListener('click', async () => {
+        const res = await fetch('/v1/parse', {
+          method: 'POST',
+          headers: {'content-type': 'application/json'},
+          body: JSON.stringify({ input: '0039 333 123 4567', default_region: 'IT' })
+        });
+        document.getElementById('out').textContent = await res.text();
+      });
+    </script>
+  </body>
+</html>
