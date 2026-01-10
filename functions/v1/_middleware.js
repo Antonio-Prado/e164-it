@@ -32,7 +32,13 @@ export async function onRequest(context) {
     return context.next();
   }
 
-  // Basic env checks (throws early if misconfigured)
+  
+  // Public documentation endpoints (no API key required).
+  if (request.method === "GET" && (url.pathname === "/v1/openapi.json" || url.pathname === "/v1/parse" || url.pathname === "/v1/batch/parse")) {
+    return context.next();
+  }
+
+// Basic env checks (throws early if misconfigured)
   try {
     assertEnvSecrets(env);
   } catch (e) {
