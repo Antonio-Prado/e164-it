@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>e164.it — API Docs</title>
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css">
+  <style>
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+    body { margin: 24px; max-width: 1200px; }
+    nav a { margin-right: 12px; }
+    .card { border: 1px solid #ddd; border-radius: 14px; padding: 14px; margin: 16px 0; }
+    .muted { color: #666; }
+    label { display:block; font-size: 12px; color:#444; margin: 10px 0 6px; }
+    input, button { font: inherit; padding: 10px; border-radius: 10px; border: 1px solid #ccc; }
+    button { cursor: pointer; }
+    .row { display:flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/batch/">Batch CSV</a>
+    <a href="/api/">API</a>
+    <a href="/admin/">Admin</a>
+    <a href="/privacy/">Privacy</a>
+  </nav>
+
+  <h1 style="margin: 10px 0 6px;">API Docs</h1>
+  <p class="muted" style="margin:0 0 14px;">Interactive documentation powered by OpenAPI.</p>
+
+  <div class="card">
+    <div class="row">
+      <div style="flex: 1; min-width: 280px;">
+        <label for="api_key">API key (optional)</label>
+        <input id="api_key" placeholder="e164_..." autocomplete="off" style="width: 100%;" />
+        <div class="muted" style="font-size:12px; margin-top:6px;">Stored locally in your browser (localStorage).</div>
+      </div>
+      <div style="min-width: 180px;">
+        <label>&nbsp;</label>
+        <button id="clear">Clear</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="swagger-ui"></div>
+
+  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
+  <script>
+    const STORAGE_KEY = "e164_api_key";
+    const apiKeyEl = document.getElementById("api_key");
+    const clearBtn = document.getElementById("clear");
+
+    apiKeyEl.value = localStorage.getItem(STORAGE_KEY) || "";
+    apiKeyEl.addEventListener("input", () => {
+      const v = apiKeyEl.value.trim();
+      if (v) localStorage.setItem(STORAGE_KEY, v);
+      else localStorage.removeItem(STORAGE_KEY);
+    });
+    clearBtn.addEventListener("click", () => {
+      apiKeyEl.value = "";
+      localStorage.removeItem(STORAGE_KEY);
+    });
+
+    window.ui = SwaggerUIBundle({
+      url: "/v1/openapi.json",
+      dom_id: "#swagger-ui",
+      deepLinking: true,
+      presets: [
+        SwaggerUIBundle.presets.apis,
+        SwaggerUIStandalonePreset,
+      ],
+      layout: "StandaloneLayout",
+      requestInterceptor: (req) => {
+        const key = (apiKeyEl.value || "").trim();
+        if (key) {
+          req.headers = req.headers || {};
+          req.headers["x-api-key"] = key;
+        }
+        return req;
+      },
+    });
+  </script>
+</body>
+</html>
