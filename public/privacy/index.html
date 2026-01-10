@@ -3,35 +3,78 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Privacy notes for e164.it — what is processed and what is stored." />
+  <link rel="stylesheet" href="/styles.tech.css">
   <title>e164.it — Privacy</title>
-  <style>
-    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
-    body { margin: 24px; max-width: 980px; }
-    .muted { color: #666; }
-    nav a { margin-right: 12px; }
-    li { margin: 6px 0; }
-  </style>
 </head>
 <body>
-  <nav>
-    <a href="/">Home</a>
-    <a href="/batch/">Batch CSV</a>
-    <a href="/api/">API</a>
-    <a href="/privacy/">Privacy</a>
-  </nav>
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">E.164</div>
+        <div>
+          <h1>Privacy</h1>
+          <p class="subtitle">Short, practical notes about what the service processes and how to minimize exposure.</p>
+        </div>
+      </div>
+      <nav aria-label="Primary">
+        <a href="/">Single</a>
+        <a href="/batch/">Batch CSV</a>
+        <a href="/api/">API</a>
+        <a href="/privacy/" aria-current="page">Privacy</a>
+      </nav>
+    </header>
 
-  <h1>Privacy</h1>
-  <p class="muted">Short version (V1): this tool is designed to avoid storing raw phone numbers.</p>
+    <main class="stack">
+      <div class="card">
+        <div class="small muted">What you submit</div>
+        <p class="small muted" style="margin-top:8px;">
+          The service processes the phone number(s) you provide (single input or CSV batch) to compute:
+          normalized formats (E.164, international, national, RFC3966), validity, and optional derived outputs.
+        </p>
+      </div>
 
-  <ul>
-    <li>The API processes input and returns normalized outputs.</li>
-    <li>By default, raw numbers are not meant to be persisted server-side.</li>
-    <li>Optional outputs include <strong>masked</strong> and <strong>HMAC hash</strong> (requires <code>HASH_SECRET</code>).</li>
-    <li>Batch results are generated on the fly and returned as a CSV download.</li>
-  </ul>
+      <div class="card">
+        <div class="small muted">Masking & hashing</div>
+        <p class="small muted" style="margin-top:8px;">
+          To reduce exposure, you can request:
+        </p>
+        <pre>Masking: last2 / last4 (keeps only the last digits)
+Hash: HMAC-based derived value (stable for the same secret)</pre>
+        <p class="small muted" style="margin-top:8px;">
+          Use hashing when you need correlation in logs/CRM without keeping raw numbers.
+        </p>
+      </div>
 
-  <p class="muted">
-    This page will be expanded when we add API keys, quotas, and async batch jobs.
-  </p>
+      <div class="card">
+        <div class="small muted">API key storage (web UI)</div>
+        <p class="small muted" style="margin-top:8px;">
+          The web pages store your API key locally in the browser (<code>localStorage</code>) so you don't have to retype it.
+          Clear site data in your browser to remove it.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="small muted">Operational metadata</div>
+        <p class="small muted" style="margin-top:8px;">
+          Like most web services, infrastructure may log minimal request metadata for operations (for example timestamps,
+          status codes, and rate-limit counters). If you need strong guarantees, prefer masking/hash options and avoid
+          submitting raw numbers beyond what is strictly necessary.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="small muted">Contact</div>
+        <p class="small muted" style="margin-top:8px;">
+          For privacy questions or data handling requests, contact the site owner.
+        </p>
+      </div>
+    </main>
+
+    <footer class="meta">
+      <span>Use <code>mask</code> / <code>hash</code> options to minimize raw data</span>
+      <span><a href="/api/">API →</a></span>
+    </footer>
+  </div>
 </body>
 </html>

@@ -3,56 +3,108 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="API reference for e164.it — E.164 phone number parser/formatter." />
+  <link rel="stylesheet" href="/styles.tech.css">
   <title>e164.it — API</title>
-  <style>
-    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
-    body { margin: 24px; max-width: 980px; }
-    .muted { color: #666; }
-    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
-    pre { padding: 12px; border: 1px solid #ddd; border-radius: 12px; overflow:auto; }
-    nav a { margin-right: 12px; }
-  </style>
 </head>
 <body>
-  <nav>
-    <a href="/">Home</a>
-    <a href="/batch/">Batch CSV</a>
-    <a href="/api/">API</a>
-    <a href="/privacy/">Privacy</a>
-    <a href="/samples/sample.csv">Sample CSV</a>
-  </nav>
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">E.164</div>
+        <div>
+          <h1>API</h1>
+          <p class="subtitle">Minimal HTTP endpoints for parsing single numbers and batch CSV uploads.</p>
+        </div>
+      </div>
+      <nav aria-label="Primary">
+        <a href="/">Single</a>
+        <a href="/batch/">Batch CSV</a>
+        <a href="/api/" aria-current="page">API</a>
+        <a href="/privacy/">Privacy</a>
+      </nav>
+    </header>
 
-  <h1>API</h1>
-  <p class="muted">V1 endpoints (no auth yet). Everything returns UTF-8.</p>
+    <main class="stack">
+      <div class="card">
+        <div class="small muted">Authentication</div>
+        <p class="small muted" style="margin-top:8px;">
+          If enabled for your project, send an API key via <code>x-api-key</code>.
+          The web UI stores the key locally in your browser (<code>localStorage</code>).
+        </p>
+        <pre>curl -s \
+  -H "x-api-key: e164_..." \
+  https://e164.it/v1/parse</pre>
+      </div>
 
-  <h2>POST /v1/parse</h2>
-  <pre><code>curl -i -X POST https://e164.it/v1/parse \
-  -H 'content-type: application/json' \
-  -d '{
-    "input": "0039 333 123 4567",
-    "default_region": "IT",
-    "options": {
-      "format": ["e164","international","national","rfc3966"],
-      "classify": true,
-      "mask": {"mode":"last4"},
-      "hash": {"enabled": false}
-    }
-  }'</code></pre>
+      <div class="card" id="parse">
+        <div class="small muted">POST /v1/parse</div>
+        <p class="small muted" style="margin-top:8px;">
+          Parse a single phone number. The service returns a JSON envelope with <code>ok</code> and a <code>result</code> object.
+        </p>
 
-  <h2>POST /v1/batch/parse</h2>
-  <p class="muted">Multipart CSV upload. Returns a CSV attachment.</p>
-  <pre><code>curl -i -X POST https://e164.it/v1/batch/parse \
+        <div class="small muted" style="margin-top:10px;">Request</div>
+        <pre>{
+  "input": "0039 333 123 4567",
+  "default_region": "IT",
+  "options": {
+    "format": ["e164","international","national","rfc3966"],
+    "classify": true,
+    "mask": { "mode": "none" },
+    "hash": { "enabled": false }
+  }
+}</pre>
+
+        <div class="small muted" style="margin-top:10px;">Example</div>
+        <pre>curl -s \
+  -H "content-type: application/json" \
+  -H "x-api-key: e164_..." \
+  -d '{"input":"0039 333 123 4567","default_region":"IT","options":{"format":["e164","rfc3966"],"classify":true,"mask":{"mode":"last4"},"hash":{"enabled":true}}}' \
+  https://e164.it/v1/parse</pre>
+      </div>
+
+      <div class="card" id="batch">
+        <div class="small muted">POST /v1/batch/parse</div>
+        <p class="small muted" style="margin-top:8px;">
+          Upload a CSV via <code>multipart/form-data</code>. The response body is a CSV with extra columns added.
+        </p>
+
+        <div class="small muted" style="margin-top:10px;">Form fields</div>
+        <pre>file            (CSV file)
+phone_column    (header name or 1-based index)
+default_region  (e.g. IT, US, GB; or empty for auto)
+has_header      ("true" or "false")
+delimiter       ("auto", ",", ";", or "" for tab)
+mask_mode       ("none", "last2", "last4")
+hash_enabled    ("true" or "false")</pre>
+
+        <div class="small muted" style="margin-top:10px;">Example</div>
+        <pre>curl -s \
+  -H "x-api-key: e164_..." \
   -F "file=@sample.csv" \
   -F "phone_column=phone" \
   -F "default_region=IT" \
   -F "has_header=true" \
   -F "delimiter=auto" \
   -F "mask_mode=last4" \
-  -F "hash_enabled=false" \
-  -o e164_batch_results.csv</code></pre>
+  -F "hash_enabled=true" \
+  https://e164.it/v1/batch/parse \
+  -o result.csv</pre>
+      </div>
 
-  <p class="muted">
-    Notes: batch V1 limit is ~5MB per file. For bigger workloads we will add async jobs.
-  </p>
+      <div class="card">
+        <div class="small muted">Rate limiting headers</div>
+        <p class="small muted" style="margin-top:8px;">
+          When rate limiting is enabled, responses may include:
+          <code>x-ratelimit-limit</code>, <code>x-ratelimit-remaining</code>, <code>x-ratelimit-reset</code>.
+        </p>
+      </div>
+    </main>
+
+    <footer class="meta">
+      <span>Endpoints: <code>/v1/parse</code>, <code>/v1/batch/parse</code></span>
+      <span><a href="/privacy/">Privacy →</a></span>
+    </footer>
+  </div>
 </body>
 </html>
