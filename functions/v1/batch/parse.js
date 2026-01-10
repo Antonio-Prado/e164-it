@@ -3,16 +3,28 @@ import { parsePhoneNumberFromString } from "libphonenumber-js/max";
 function corsHeaders() {
   return {
     "access-control-allow-origin": "*",
-    "access-control-allow-headers": "content-type, authorization",
     "access-control-allow-methods": "GET,POST,OPTIONS",
+    "access-control-allow-headers": "content-type, x-api-key, authorization, x-admin-token",
+    "access-control-max-age": "86400",
   };
 }
 
-function json(data, status = 200) {
-  return new Response(JSON.stringify(data, null, 2), {
+function json(status, body, extraHeaders = {}) {
+  return new Response(JSON.stringify(body, null, 2), {
     status,
-    headers: { "content-type": "application/json; charset=utf-8", ...corsHeaders() },
+    headers: {
+      "content-type": "application/json; charset=utf-8",
+      ...corsHeaders(),
+      ...extraHeaders,
+    },
   });
+}
+
+function normalizeInput(raw) {
+  const s = String(raw ?? "").trim();
+  if (!s) return "";
+  if (s.startsWith("00")) return "+" + s.slice(2);
+  return s;
 }
 
 function maskE164(e164, mode) {
@@ -42,197 +54,332 @@ async function hmacSha256Hex(secret, message) {
   return toHex(sig);
 }
 
-function parseFirstRow(text, delimiter) {
-  const row = [];
-  let field = "";
-  let inQuotes = false;
-
-  for (let i = 0; i < text.length; i++) {
-    const c = text[i];
-
-    if (inQuotes) {
-      if (c === '"') {
-        if (text[i + 1] === '"') { field += '"'; i++; }
-        else inQuotes = false;
-      } else field += c;
-      continue;
-    }
-
-    if (c === '"') inQuotes = true;
-    else if (c === delimiter) { row.push(field); field = ""; }
-    else if (c === "\n" || c === "\r") { row.push(field); return row; }
-    else field += c;
-  }
-
-  row.push(field);
-  return row;
+function parseBool(s, fallback = false) {
+  if (s === undefined || s === null) return fallback;
+  const v = String(s).trim().toLowerCase();
+  if (["1", "true", "yes", "y", "on"].includes(v)) return true;
+  if (["0", "false", "no", "n", "off"].includes(v)) return false;
+  return fallback;
 }
 
-function detectDelimiter(sample) {
-  const candidates = [",", ";", "\t"];
-  let best = ",";
-  let bestCols = 1;
+function firstNonEmptyLine(text) {
+  for (const line of text.split(/\r?\n/)) {
+    if (line.trim().length) return line;
+  }
+  return "";
+}
 
+function detectDelimiter(line) {
+  const candidates = [",", ";", "\t", "|"];
+  let best = ",";
+  let bestCount = -1;
   for (const d of candidates) {
-    const cols = parseFirstRow(sample, d).length;
-    if (cols > bestCols) { bestCols = cols; best = d; }
+    const c = (line.match(new RegExp(`\\${d}`, "g")) || []).length;
+    if (c > bestCount) {
+      bestCount = c;
+      best = d;
+    }
   }
   return best;
 }
 
-function parseCSV(text, delimiter) {
-  const rows = [];
-  let row = [];
-  let field = "";
+function csvParseLine(line, delimiter) {
+  const out = [];
+  let cur = "";
   let inQuotes = false;
 
-  for (let i = 0; i < text.length; i++) {
-    const c = text[i];
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
 
     if (inQuotes) {
-      if (c === '"') {
-        if (text[i + 1] === '"') { field += '"'; i++; }
-        else inQuotes = false;
-      } else field += c;
+      if (ch === '"') {
+        if (line[i + 1] === '"') {
+          cur += '"';
+          i++;
+        } else {
+          inQuotes = false;
+        }
+      } else {
+        cur += ch;
+      }
       continue;
     }
 
-    if (c === '"') inQuotes = true;
-    else if (c === delimiter) { row.push(field); field = ""; }
-    else if (c === "\n") { row.push(field); rows.push(row); row = []; field = ""; }
-    else if (c === "\r") {
-      row.push(field); rows.push(row); row = []; field = "";
-      if (text[i + 1] === "\n") i++;
-    } else field += c;
-  }
+    if (ch === '"') {
+      inQuotes = true;
+      continue;
+    }
 
-  if (field.length > 0 || row.length > 0) { row.push(field); rows.push(row); }
-  return rows;
+    if (ch === delimiter) {
+      out.push(cur);
+      cur = "";
+      continue;
+    }
+
+    cur += ch;
+  }
+  out.push(cur);
+  return out;
 }
 
 function csvEscape(value, delimiter) {
-  const s = value === null || value === undefined ? "" : String(value);
-  if (s.includes('"') || s.includes("\n") || s.includes("\r") || s.includes(delimiter)) {
-    return '"' + s.replaceAll('"', '""') + '"';
-  }
-  return s;
+  const s = String(value ?? "");
+  const mustQuote = s.includes('"') || s.includes("\n") || s.includes("\r") || s.includes(delimiter);
+  if (!mustQuote) return s;
+  return `"${s.replace(/"/g, '""')}"`;
 }
 
-export async function onRequest({ request, env }) {
-  if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders() });
+function isProbablyHeaderRow(row) {
+  // Heuristic: if most cells contain non-digit letters, treat as header.
+  const cells = row.filter((c) => String(c ?? "").trim().length);
+  if (!cells.length) return false;
+  let score = 0;
+  for (const c of cells) {
+    const t = String(c).trim();
+    if (/[A-Za-z_]/.test(t) && !/^\+?\d[\d\s().-]*$/.test(t)) score++;
+  }
+  return score >= Math.ceil(cells.length * 0.6);
+}
 
-  if (request.method === "GET") {
-    return json({
-      ok: true,
-      endpoint: "/v1/batch/parse",
-      method: "POST multipart/form-data",
-      fields: [
-        "file (CSV)",
-        "phone_column (header name or 0-based index)",
-        "default_region (optional, e.g. IT)",
-        "has_header (true|false, default true)",
-        "delimiter (auto|,|;|tab, default auto)",
-        "mask_mode (none|last2|last4, default none)",
-        "hash_enabled (true|false, default false)"
-      ],
-      returns: "CSV attachment with extra columns: e164, possible, valid, region, type, masked, hash, error"
-    });
+function resolvePhoneColumnIndex(header, phoneColumn) {
+  const raw = String(phoneColumn ?? "").trim();
+  if (!raw) return -1;
+
+  // Allow 1-based numeric index (e.g. "1", "2"...)
+  if (/^\d+$/.test(raw)) {
+    const idx = Number(raw) - 1;
+    return Number.isInteger(idx) && idx >= 0 ? idx : -1;
   }
 
-  if (request.method !== "POST") return json({ ok: false, error: "Method not allowed" }, 405);
-
-  const ct = request.headers.get("content-type") || "";
-  if (!ct.includes("multipart/form-data")) return json({ ok: false, error: "Expected multipart/form-data" }, 400);
-
-  const form = await request.formData();
-  const file = form.get("file");
-  if (!file || typeof file === "string") return json({ ok: false, error: "Missing file field" }, 400);
-
-  const defaultRegion = (form.get("default_region") || "").toString() || undefined;
-  const phoneColumnRaw = (form.get("phone_column") || "").toString().trim();
-  const hasHeader = ((form.get("has_header") || "true").toString().toLowerCase() !== "false");
-  const maskMode = (form.get("mask_mode") || "none").toString();
-  const hashEnabled = ((form.get("hash_enabled") || "false").toString().toLowerCase() === "true");
-  const delimiterPref = (form.get("delimiter") || "auto").toString();
-
-  const text = await file.text();
-  const maxBytes = 5_000_000; // ~5 MB
-  if (text.length > maxBytes) return json({ ok: false, error: "File too large for V1 (max ~5MB)" }, 413);
-
-  const sample = text.slice(0, 8192);
-  const delimiter = delimiterPref === "auto" ? detectDelimiter(sample) : delimiterPref;
-
-  const rows = parseCSV(text, delimiter);
-  if (rows.length === 0) return json({ ok: false, error: "Empty CSV" }, 400);
-
-  let header = null;
-  let startRow = 0;
-
-  if (hasHeader) { header = rows[0]; startRow = 1; }
-
-  let phoneIdx = -1;
-  if (hasHeader && header) {
-    const asInt = Number.parseInt(phoneColumnRaw, 10);
-    if (!Number.isNaN(asInt) && String(asInt) === phoneColumnRaw) phoneIdx = asInt;
-    else phoneIdx = header.indexOf(phoneColumnRaw);
-  } else {
-    const asInt = Number.parseInt(phoneColumnRaw, 10);
-    if (!Number.isNaN(asInt)) phoneIdx = asInt;
+  // Header name
+  if (!header) return -1;
+  const wanted = raw.toLowerCase();
+  for (let i = 0; i < header.length; i++) {
+    if (String(header[i] ?? "").trim().toLowerCase() === wanted) return i;
   }
+  return -1;
+}
 
-  if (phoneIdx < 0) {
-    const hint = hasHeader && header
-      ? { available_columns: header }
-      : { hint: "Set phone_column to a 0-based index when has_header=false" };
-    return json({ ok: false, error: "Could not resolve phone column", ...hint }, 400);
-  }
+async function loadBatchLimits(env, keyId) {
+  const row = await env.DB
+    .prepare("SELECT max_batch_rows, max_batch_bytes FROM api_keys WHERE id = ? LIMIT 1")
+    .bind(keyId)
+    .first();
 
-  const outHeader = header
-    ? [...header, "e164", "possible", "valid", "region", "type", "masked", "hash", "error"]
-    : null;
+  const maxRows = Number(row?.max_batch_rows ?? 5000);
+  const maxBytes = Number(row?.max_batch_bytes ?? 1048576);
 
-  const outRows = [];
-  if (outHeader) outRows.push(outHeader);
+  return {
+    maxRows: Number.isFinite(maxRows) && maxRows > 0 ? maxRows : 5000,
+    maxBytes: Number.isFinite(maxBytes) && maxBytes > 0 ? maxBytes : 1048576,
+  };
+}
 
-  const secret = env?.HASH_SECRET;
+export async function onRequest(context) {
+  const { request, env } = context;
 
-  for (let r = startRow; r < rows.length; r++) {
-    const row = rows[r] ?? [];
-    const raw = (row[phoneIdx] ?? "").toString();
-
-    let e164 = "", possible = "", valid = "", region = "", type = "", masked = "", hash = "", error = "";
-
-    if (!raw.trim()) error = "missing_phone_value";
-    else {
-      const phone = parsePhoneNumberFromString(raw, defaultRegion);
-      if (!phone) error = "parse_failed";
-      else {
-        possible = String(phone.isPossible());
-        valid = String(phone.isValid());
-        e164 = phone.number || "";
-        region = phone.country || "";
-        type = (phone.getType?.() ?? "") || "";
-        masked = maskE164(e164, maskMode);
-
-        if (hashEnabled && secret && e164) {
-          hash = "h_" + (await hmacSha256Hex(secret, e164));
-        }
-      }
+  try {
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: corsHeaders() });
     }
 
-    outRows.push([...(row ?? []), e164, possible, valid, region, type, masked, hash, error]);
-  }
+    if (request.method === "GET") {
+      return json(200, {
+        ok: true,
+        endpoint: "/v1/batch/parse",
+        method: "POST multipart/form-data",
+        fields: {
+          file: "CSV file (required)",
+          phone_column: "Header name or 1-based index (required)",
+          default_region: "ISO 3166-1 alpha-2 (optional)",
+          has_header: "true/false (optional, default: auto-detect)",
+          delimiter: "auto|comma|semicolon|tab|pipe (optional, default: auto)",
+          mask_mode: "none|last2|last4 (optional, default: none)",
+          hash_enabled: "true/false (optional, default: false)",
+        },
+      });
+    }
 
-  const bom = "\ufeff";
-  const csv = outRows.map((row) => row.map((v) => csvEscape(v, delimiter)).join(delimiter)).join("\n");
+    if (request.method !== "POST") {
+      return json(405, { ok: false, error: { code: "method_not_allowed", message: "Use GET, POST or OPTIONS." } });
+    }
 
-  return new Response(bom + csv, {
-    status: 200,
-    headers: {
-      "content-type": "text/csv; charset=utf-8",
-      "content-disposition": 'attachment; filename="e164_batch_results.csv"',
-      "cache-control": "no-store",
+    if (!env?.DB) {
+      return json(500, { ok: false, error: { code: "misconfigured", message: "Missing D1 binding DB." } });
+    }
+
+    const keyId = Number(context.data?.apiKey?.id ?? 0);
+    if (!keyId) {
+      // Should not happen if middleware enforces API keys.
+      return json(401, { ok: false, error: { code: "unauthorized", message: "Missing API key context." } });
+    }
+
+    const limits = await loadBatchLimits(env, keyId);
+
+    const form = await request.formData();
+    const file = form.get("file");
+    const phoneColumn = form.get("phone_column");
+
+    if (!(file instanceof File)) {
+      return json(400, { ok: false, error: { code: "missing_file", message: "Field 'file' is required." } });
+    }
+    if (!phoneColumn) {
+      return json(400, { ok: false, error: { code: "missing_phone_column", message: "Field 'phone_column' is required." } });
+    }
+
+    // Enforce max bytes before reading into memory.
+    if (Number.isFinite(file.size) && file.size > limits.maxBytes) {
+      return json(413, {
+        ok: false,
+        error: { code: "batch_too_large", message: `File exceeds max_batch_bytes (${limits.maxBytes}).` },
+        limits,
+        file_size: file.size,
+      });
+    }
+
+    const defaultRegion = form.get("default_region") ? String(form.get("default_region")) : undefined;
+
+    const hasHeaderRaw = form.get("has_header");
+    const delimiterRaw = String(form.get("delimiter") ?? "auto").toLowerCase();
+
+    const maskMode = String(form.get("mask_mode") ?? "none").toLowerCase();
+    const hashEnabled = parseBool(form.get("hash_enabled"), false);
+
+    const text = await file.text();
+
+    // Rough row count before parsing full CSV.
+    const lines = text.split(/\r?\n/);
+    const nonEmptyLines = lines.filter((l) => l.trim().length > 0);
+    if (nonEmptyLines.length > limits.maxRows + 1) {
+      return json(413, {
+        ok: false,
+        error: { code: "batch_too_many_rows", message: `Row count exceeds max_batch_rows (${limits.maxRows}).` },
+        limits,
+        rows_detected: nonEmptyLines.length,
+      });
+    }
+
+    const sampleLine = firstNonEmptyLine(text);
+    const delimiter =
+      delimiterRaw === "comma" ? "," :
+      delimiterRaw === "semicolon" ? ";" :
+      delimiterRaw === "tab" ? "\t" :
+      delimiterRaw === "pipe" ? "|" :
+      detectDelimiter(sampleLine || ",");
+
+    // Parse all non-empty lines.
+    const rows = nonEmptyLines.map((l) => csvParseLine(l, delimiter));
+
+    let header = null;
+    let startIndex = 0;
+
+    if (hasHeaderRaw === null || hasHeaderRaw === undefined || String(hasHeaderRaw).trim() === "") {
+      // Auto-detect
+      if (rows.length && isProbablyHeaderRow(rows[0])) {
+        header = rows[0];
+        startIndex = 1;
+      }
+    } else if (parseBool(hasHeaderRaw, true)) {
+      header = rows[0] || [];
+      startIndex = 1;
+    }
+
+    const phoneIdx = resolvePhoneColumnIndex(header, phoneColumn);
+    if (phoneIdx < 0) {
+      return json(400, {
+        ok: false,
+        error: { code: "invalid_phone_column", message: "Could not resolve phone_column (name or 1-based index)." },
+      });
+    }
+
+    const outCols = ["e164", "valid", "possible", "country", "type", "masked"];
+    if (hashEnabled) outCols.push("hash");
+    outCols.push("error");
+
+    const out = [];
+
+    if (header) {
+      out.push([...header, ...outCols]);
+    }
+
+    let okCount = 0;
+    let failCount = 0;
+
+    for (let i = startIndex; i < rows.length; i++) {
+      const row = rows[i];
+      const rawPhone = row[phoneIdx] ?? "";
+      const input = normalizeInput(rawPhone);
+
+      let e164 = "";
+      let country = "";
+      let callingCode = "";
+      let possible = false;
+      let valid = false;
+      let type = "";
+      let masked = "";
+      let hash = "";
+      let err = "";
+
+      if (!input) {
+        err = "empty_phone";
+      } else {
+        const pn = parsePhoneNumberFromString(input, defaultRegion);
+        if (!pn) {
+          err = "parse_failed";
+        } else {
+          e164 = pn.number || "";
+          country = pn.country || "";
+          callingCode = pn.countryCallingCode || "";
+          possible = pn.isPossible();
+          valid = pn.isValid();
+          type = pn.getType ? (pn.getType() || "") : "";
+          masked = maskE164(e164, maskMode);
+
+          if (hashEnabled) {
+            if (!env?.HASH_SECRET) {
+              hash = "";
+              err = err || "hash_secret_missing";
+            } else if (e164) {
+              hash = "h_" + (await hmacSha256Hex(env.HASH_SECRET, e164));
+            }
+          }
+        }
+      }
+
+      if (!err && valid) okCount++;
+      if (err || !valid) failCount++;
+
+      const extra = [
+        e164,
+        String(valid),
+        String(possible),
+        country || "",
+        type || "",
+        masked || "",
+      ];
+      if (hashEnabled) extra.push(hash || "");
+      extra.push(err);
+
+      out.push([...row, ...extra]);
+    }
+
+    // Serialize CSV
+    const csv = out
+      .map((r) => r.map((c) => csvEscape(c, delimiter)).join(delimiter))
+      .join("\n") + "\n";
+
+    const headers = {
       ...corsHeaders(),
-    },
-  });
+      "content-type": "text/csv; charset=utf-8",
+      "content-disposition": `attachment; filename="e164-batch-result.csv"`,
+      "x-batch-rows-total": String(Math.max(0, rows.length - startIndex)),
+      "x-batch-rows-ok": String(okCount),
+      "x-batch-rows-failed": String(failCount),
+    };
+
+    return new Response(csv, { status: 200, headers });
+  } catch (err) {
+    console.error("Unhandled error in /v1/batch/parse:", err);
+    return json(500, { ok: false, error: { code: "internal_error", message: "Unhandled exception in batch parser." } });
+  }
 }
