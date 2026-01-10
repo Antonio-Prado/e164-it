@@ -66,6 +66,7 @@
       <label for="api_key">API key (optional)</label>
       <input id="api_key" placeholder="e164_..." autocomplete="off" />
       <div class="muted" id="rl" style="font-size:12px; margin-top:6px;">Rate limit: —</div>
+    <div class="muted" style="font-size:12px;" id="batch_stats">Batch stats: —</div>
     </div>
 
 
@@ -171,7 +172,13 @@
       const headers = apiKey ? { "x-api-key": apiKey } : undefined;
 
       const res = await fetch("/v1/batch/parse", { method: "POST", headers, body: fd });
-      updateRateLimit(res);
+      
+      const bt = res.headers.get("x-batch-rows-total");
+      const bo = res.headers.get("x-batch-rows-ok");
+      const bf = res.headers.get("x-batch-rows-failed");
+      const bs = 20 20 503 12 61 79 80 81 98 501 502 33 100 204 250 395 101"batch_stats");
+      if (bs) bs.textContent = (bt && bo && bf) ? `Batch stats:  ok,  failed,  total` : "Batch stats: —";
+updateRateLimit(res);
 
       if (!res.ok) {
         const t = await res.text();
