@@ -29,7 +29,7 @@ export async function enforceRateLimit({ kv, keyPrefix, limitPerMinute }) {
   }
 
   const nextCount = count + 1;
-  await kv.put(key, String(nextCount), { expirationTtl: ttlSeconds });
+await kv.put(key, String(nextCount), { expirationTtl: Math.max(60, ttlSeconds) });
 
   const remaining = Number.isFinite(limitPerMinute) && limitPerMinute > 0
     ? String(Math.max(0, limitPerMinute - nextCount))
