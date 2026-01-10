@@ -3,7 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>e164.it — E.164 formatter & validator</title>
+    <meta name="description" content="E.164 phone number parser/formatter with VoIP- and CRM-friendly outputs." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http://www.w3.org/2000/svg'%20viewBox%3D'0%200%2064%2064'%3E%3Crect%20width%3D'64'%20height%3D'64'%20rx%3D'14'%20fill%3D'%23111113'/%3E%3Cpath%20d%3D'M18%2022h28v6H24v6h20v6H24v6h22v6H18z'%20fill%3D'%237cc4ff'/%3E%3C/svg%3E" />
+  <meta property="og:title" content="e164.it" />
+  <meta property="og:description" content="E.164 phone number parser/formatter with VoIP- and CRM-friendly outputs." />
+  <meta property="og:type" content="website" />
+<title>e164.it — E.164 formatter & validator</title>
     <style>
     :root{
       --bg: #0b0b0c;
@@ -229,6 +234,56 @@
     @media (prefers-reduced-motion: reduce){
       *{ transition: none !important; scroll-behavior: auto !important; }
     }
+  
+    .details{
+      margin-top: 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 8px 10px;
+      background: transparent;
+    }
+    .details > summary{
+      cursor: pointer;
+      user-select:none;
+      list-style: none;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .details > summary::-webkit-details-marker{ display:none; }
+    .details[open] > summary{ color: var(--text); }
+    .details .hint{ margin-top: 8px; }
+
+    .toast{
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 12px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .12s ease;
+      max-width: min(520px, calc(100vw - 24px));
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      z-index: 1000;
+    }
+    .toast.show{ opacity: 1; }
+
+    .kbd{
+      font-family: var(--mono);
+      font-size: 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 2px 6px;
+      color: var(--muted);
+    }
+
   </style>
 </head>
 <body>
@@ -298,7 +353,7 @@
       <button id="btn" class="primary">Parse</button>
       <button id="btn_example_it" type="button">Example (IT)</button>
       <button id="btn_example_us" type="button">Example (US)</button>
-      <span id="status" class="pill">idle</span>
+      <span id="status" class="pill" aria-live="polite">idle</span>
     </div>
   </div>
 
@@ -328,7 +383,25 @@
         API: <code>POST /v1/parse</code>. <span id="privacy">Privacy: the endpoint can produce <em>masked</em> and <em>hash</em> outputs without storing the raw number.</span>
       </p>
 
-      <footer class="meta">
+      
+      <details class="details">
+        <summary>curl examples <span class="muted">(<span class="kbd">Enter</span> parses)</span></summary>
+        <div class="hint">
+          <pre>curl -s \
+  -H "content-type: application/json" \
+  -H "x-api-key: e164_..." \
+  -d '{"input":"0039 333 123 4567","default_region":"IT","options":{"validate":true,"mask":true,"hash":true,"rfc3966":true}}' \
+  https://e164.it/v1/parse</pre>
+        </div>
+        <div class="hint">
+          <pre>curl -s \
+  -H "content-type: application/json" \
+  -d '{"input":"(415) 555-2671","default_region":"US","options":{"validate":true}}' \
+  https://e164.it/v1/parse</pre>
+        </div>
+      </details>
+
+<footer class="meta">
         <span>Local-only: API key stored in your browser (localStorage).</span>
         <span><a href="/batch">Go to Batch CSV →</a></span>
       </footer>
@@ -338,6 +411,16 @@
   const $ = (id) => document.getElementById(id);
 
   let last = null;
+  let toastTimer = null;
+
+  function showToast(msg) {
+    const el = $("toast");
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove("show"), 1200);
+  }
 
   const API_KEY_STORAGE = "e164_api_key";
   const apiKeyEl = $("api_key");
@@ -440,12 +523,22 @@
     }
   }
 
-  async function copyText(t) {
+  async function copyText(t, label="Copied") {
     if (!t) return;
-    try { await navigator.clipboard.writeText(t); } catch {}
+    try {
+      await navigator.clipboard.writeText(t);
+      showToast(label);
+    } catch {
+      showToast("Copy failed");
+    }
   }
 
   $("btn").addEventListener("click", parseNow);
+
+  // Enter = parse
+  $("input").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") parseNow();
+  });
 
   $("btn_example_it").addEventListener("click", () => {
     $("input").value = "0039 333 123 4567";
@@ -459,13 +552,14 @@
     parseNow();
   });
 
-  $("copy_e164").addEventListener("click", () => copyText(last?.e164));
-  $("copy_tel").addEventListener("click", () => copyText(last?.rfc3966));
-  $("copy_json").addEventListener("click", () => copyText($("out").textContent));
+  $("copy_e164").addEventListener("click", () => copyText(last?.e164, "Copied: E.164"));
+  $("copy_tel").addEventListener("click", () => copyText(last?.rfc3966, "Copied: tel:"));
+  $("copy_json").addEventListener("click", () => copyText($("out").textContent, "Copied: JSON"));
 
   // run once
   parseNow();
 </script>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
   </div>
 </body>
 </html>
