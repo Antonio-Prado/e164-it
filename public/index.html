@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="it">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -26,16 +26,16 @@
 </head>
 <body>
   <h1>e164.it</h1>
-  <p class="muted">Formatter / validator per numeri telefonici (E.164) + output utili per VoIP, CRM e logging.</p>
+  <p class="muted">Phone number formatter / validator (E.164) with outputs useful for VoIP, CRM, and logging.</p>
 
   <div class="card">
     <div class="row">
       <div>
-        <label for="input">Numero (anche “sporco”)</label>
-        <input id="input" placeholder="es. 0039 333 123 4567" value="0039 333 123 4567" />
+        <label for="input">Phone number (messy input is OK)</label>
+        <input id="input" placeholder="e.g. 0039 333 123 4567" value="0039 333 123 4567" />
       </div>
       <div>
-        <label for="region">Default region (se manca prefisso)</label>
+        <label for="region">Default region (if country code is missing)</label>
         <select id="region">
           <option value="">(auto)</option>
           <option value="IT" selected>IT</option>
@@ -54,7 +54,7 @@
       <label class="pill"><input type="checkbox" id="fmt_rfc" checked> rfc3966 (tel:)</label>
 
       <label class="pill">
-        Mask:
+        Masking:
         <select id="mask" style="margin-left:6px; padding:4px 8px;">
           <option value="none" selected>none</option>
           <option value="last2">last2</option>
@@ -67,8 +67,8 @@
 
     <div class="actions">
       <button id="btn">Parse</button>
-      <button id="btn_example_it" type="button">Esempio IT</button>
-      <button id="btn_example_us" type="button">Esempio US</button>
+      <button id="btn_example_it" type="button">Example (IT)</button>
+      <button id="btn_example_us" type="button">Example (US)</button>
       <span id="status" class="pill">idle</span>
     </div>
   </div>
@@ -76,19 +76,19 @@
   <div class="card">
     <div class="grid2">
       <div>
-        <div class="small muted">Risposta (JSON)</div>
+        <div class="small muted">Response (JSON)</div>
         <pre id="out">{}</pre>
       </div>
       <div>
-        <div class="small muted">Copie rapide</div>
+        <div class="small muted">Quick copy</div>
         <div class="actions">
-          <button id="copy_e164" type="button">Copia E.164</button>
-          <button id="copy_tel" type="button">Copia tel:</button>
-          <button id="copy_json" type="button">Copia JSON</button>
+          <button id="copy_e164" type="button">Copy E.164</button>
+          <button id="copy_tel" type="button">Copy tel:</button>
+          <button id="copy_json" type="button">Copy JSON</button>
         </div>
 
         <div style="margin-top:12px;">
-          <div class="small muted">Note</div>
+          <div class="small muted">Notes</div>
           <pre id="notes" class="muted">—</pre>
         </div>
       </div>
@@ -96,7 +96,7 @@
   </div>
 
   <p class="muted small" style="margin-top:16px;">
-    API: <code>POST /v1/parse</code>. Privacy: l’endpoint può generare <em>masked</em> e <em>hash</em> senza memorizzare il numero.
+    API: <code>POST /v1/parse</code>. Privacy: the endpoint can produce <em>masked</em> and <em>hash</em> outputs without storing the raw number.
   </p>
 
 <script>
@@ -152,7 +152,7 @@
 
       const good = Boolean(data && data.ok && data.valid);
       if (data && data.ok && data.valid === false) {
-        setStatus("ok=false (invalid)", false);
+        setStatus("invalid", false);
       } else {
         setStatus(res.ok ? "ok" : ("http " + res.status), good);
       }
@@ -161,7 +161,7 @@
       const notes = [];
       if (data?.warnings?.length) notes.push("warnings: " + data.warnings.join("; "));
       if (data?.errors?.length) notes.push("errors: " + data.errors.join("; "));
-      if (data?.privacy?.hash === null && $("hash").checked) notes.push("hash richiesto ma HASH_SECRET forse non è configurato");
+      if (data?.privacy?.hash === null && $("hash").checked) notes.push("hash requested but HASH_SECRET may not be configured");
       $("notes").textContent = notes.length ? notes.join("\n") : "—";
 
     } catch (e) {

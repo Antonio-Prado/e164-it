@@ -5,7 +5,7 @@ function json(data, status = 200, extraHeaders = {}) {
     status,
     headers: {
       "content-type": "application/json; charset=utf-8",
-      // CORS “comodo” per usare l’API anche da altri domini in futuro
+      // Convenient CORS defaults (useful if the API is called from other domains later)
       "access-control-allow-origin": "*",
       "access-control-allow-headers": "content-type, authorization",
       "access-control-allow-methods": "GET,POST,OPTIONS",
@@ -21,11 +21,11 @@ function maskE164(e164, mode) {
   const keep = mode === "last2" ? 2 : mode === "last4" ? 4 : 0;
   if (keep <= 0) return null;
 
-  // e164 esempio: +393331234567
+  // e.g. e164: +393331234567
   const digits = e164.replace(/^\+/, "");
   if (digits.length <= keep) return e164;
 
-  // Mantieni il + e maschera tutto tranne le ultime N cifre
+  // Keep the "+" and mask all but the last N digits
   const maskedCore = "*".repeat(digits.length - keep) + digits.slice(-keep);
   return "+" + maskedCore;
 }
