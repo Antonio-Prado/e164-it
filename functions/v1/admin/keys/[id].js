@@ -5,6 +5,13 @@ function json(status, body) {
   });
 }
 
+function clampInt(v, { min, max, fallback }) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return fallback;
+  const i = Math.floor(n);
+  return Math.min(max, Math.max(min, i));
+}
+
 export async function onRequest(context) {
   const { request, env, params } = context;
 
@@ -15,12 +22,15 @@ export async function onRequest(context) {
     return json(400, { ok: false, error: { code: "bad_request", message: "Invalid key id." } });
   }
 
-  if (request.method === "GET") {
-    const row = await env.DB
-      .prepare("SELECT id, label, enabled, rpm_parse, rpm_batch, created_at FROM api_keys WHERE id = ? LIMIT 1")
+  const selectOne = async () => {
+    return env.DB
+      .prepare("SELECT id, label, enabled, rpm_parse, rpm_batch, max_batch_rows, max_batch_bytes, created_at FROM api_keys WHERE id = ? LIMIT 1")
       .bind(id)
       .first();
+  };
 
+  if (request.method === "GET") {
+    const row = await selectOne();
     if (!row) return json(404, { ok: false, error: { code: "not_found", message: "Key not found." } });
     return json(200, { ok: true, item: row });
   }
@@ -34,17 +44,30 @@ export async function onRequest(context) {
       fields.push("label = ?");
       binds.push(payload.label);
     }
+
     if (payload.enabled === 0 || payload.enabled === 1 || payload.enabled === true || payload.enabled === false) {
       fields.push("enabled = ?");
       binds.push(payload.enabled ? 1 : 0);
     }
-    if (Number.isFinite(payload.rpm_parse)) {
+
+    if (payload.rpm_parse !== undefined) {
       fields.push("rpm_parse = ?");
-      binds.push(payload.rpm_parse);
+      binds.push(clampInt(payload.rpm_parse, { min: 1, max: 60_000, fallback: 300 }));
     }
-    if (Number.isFinite(payload.rpm_batch)) {
+
+    if (payload.rpm_batch !== undefined) {
       fields.push("rpm_batch = ?");
-      binds.push(payload.rpm_batch);
+      binds.push(clampInt(payload.rpm_batch, { min: 1, max: 60_000, fallback: 30 }));
+    }
+
+    if (payload.max_batch_rows !== undefined) {
+      fields.push("max_batch_rows = ?");
+      binds.push(clampInt(payload.max_batch_rows, { min: 1, max: 200_000, fallback: 5000 }));
+    }
+
+    if (payload.max_batch_bytes !== undefined) {
+      fields.push("max_batch_bytes = ?");
+      binds.push(clampInt(payload.max_batch_bytes, { min: 1, max: 25_000_000, fallback: 1_048_576 }));
     }
 
     if (!fields.length) {
@@ -56,11 +79,7 @@ export async function onRequest(context) {
     const sql = `UPDATE api_keys SET ${fields.join(", ")} WHERE id = ?`;
     await env.DB.prepare(sql).bind(...binds).run();
 
-    const row = await env.DB
-      .prepare("SELECT id, label, enabled, rpm_parse, rpm_batch, created_at FROM api_keys WHERE id = ? LIMIT 1")
-      .bind(id)
-      .first();
-
+    const row = await selectOne();
     return json(200, { ok: true, item: row });
   }
 
