@@ -4,19 +4,19 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>e164.it — Batch CSV</title>
-  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/styles.tech.css">
 </head>
 <body>
   <div class="wrap">
     <header class="top">
       <div class="brand">
-        <div class="logo">E.164</div>
+        <div class="logo" aria-hidden="true">E.164</div>
         <div>
           <h1>Batch CSV</h1>
           <p class="subtitle">Upload a CSV, pick the phone column, download enriched results (E.164, validity, masking, hash).</p>
         </div>
       </div>
-      <nav>
+      <nav aria-label="Primary">
         <a href="/">Single</a>
         <a href="/batch/" aria-current="page">Batch CSV</a>
         <a href="/api/">API</a>
@@ -59,7 +59,7 @@
           <div>
             <label for="api_key">API key (optional)</label>
             <input id="api_key" placeholder="e164_..." autocomplete="off" />
-            <div class="muted small" id="rl">Rate limit: —</div>
+            <div class="muted small" id="rl" style="margin-top:6px;">Rate limit: —</div>
             <div class="muted small" id="batch_stats">Batch stats: —</div>
           </div>
 
@@ -109,7 +109,7 @@
 
     <footer class="meta">
       <span>Endpoint: <code>POST /v1/batch/parse</code></span>
-      <span class="muted">Tip: keep API key in localStorage</span>
+      <span>Local-only: API key stored in your browser (localStorage).</span>
     </footer>
   </div>
 
@@ -176,7 +176,7 @@
       const headers = apiKey ? { "x-api-key": apiKey } : undefined;
 
       const res = await fetch("/v1/batch/parse", { method: "POST", headers, body: fd });
-      
+
       const bt = res.headers.get("x-batch-rows-total");
       const bo = res.headers.get("x-batch-rows-ok");
       const bf = res.headers.get("x-batch-rows-failed");
