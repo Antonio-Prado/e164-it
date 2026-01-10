@@ -65,6 +65,13 @@
       <label class="pill"><input type="checkbox" id="hash"> hash (HMAC)</label>
     </div>
 
+    <div style="margin-top:12px;">
+      <label for="api_key">API key (optional)</label>
+      <input id="api_key" placeholder="e164_..." autocomplete="off" />
+      <div class="small muted" id="rl" style="margin-top:6px;">Rate limit: —</div>
+    </div>
+
+
     <div class="actions">
       <button id="btn">Parse</button>
       <button id="btn_example_it" type="button">Example (IT)</button>
@@ -104,6 +111,35 @@
 
   let last = null;
 
+  const API_KEY_STORAGE = "e164_api_key";
+  const apiKeyEl = $("api_key");
+  if (apiKeyEl) {
+    apiKeyEl.value = localStorage.getItem(API_KEY_STORAGE) || "";
+    apiKeyEl.addEventListener("input", () => {
+      const v = apiKeyEl.value.trim();
+      if (v) localStorage.setItem(API_KEY_STORAGE, v);
+      else localStorage.removeItem(API_KEY_STORAGE);
+    });
+  }
+
+  function updateRateLimit(res) {
+    const el = $("rl");
+    if (!el || !res) return;
+
+    const limit = res.headers.get("x-ratelimit-limit");
+    const remaining = res.headers.get("x-ratelimit-remaining");
+    const reset = res.headers.get("x-ratelimit-reset");
+
+    if (limit && remaining && reset) {
+      const resetMs = Number(reset) * 1000;
+      const resetIso = Number.isFinite(resetMs) ? new Date(resetMs).toISOString() : "—";
+      el.textContent = `Rate limit: ${remaining}/${limit} remaining (reset at ${resetIso})`;
+    } else {
+      el.textContent = "Rate limit: —";
+    }
+  }
+
+
   function setStatus(text, good=null) {
     const el = $("status");
     el.textContent = text;
@@ -137,21 +173,27 @@
     const payload = { input, default_region, options: buildOptions() };
 
     try {
+      const apiKey = ($("api_key")?.value || "").trim();
+      const headers = { "content-type": "application/json" };
+      if (apiKey) headers["x-api-key"] = apiKey;
+
       const res = await fetch("/v1/parse", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers,
         body: JSON.stringify(payload)
       });
+
+      updateRateLimit(res);
 
       const txt = await res.text();
       let data;
       try { data = JSON.parse(txt); } catch { data = { raw: txt }; }
 
-      last = data;
+      last = data?.result || null;
       $("out").textContent = JSON.stringify(data, null, 2);
-
-      const good = Boolean(data && data.ok && data.valid);
-      if (data && data.ok && data.valid === false) {
+      const valid = data?.result?.valid;
+      const good = Boolean(data && data.ok && valid === true);
+      if (data && data.ok && valid === false) {
         setStatus("invalid", false);
       } else {
         setStatus(res.ok ? "ok" : ("http " + res.status), good);
@@ -161,7 +203,7 @@
       const notes = [];
       if (data?.warnings?.length) notes.push("warnings: " + data.warnings.join("; "));
       if (data?.errors?.length) notes.push("errors: " + data.errors.join("; "));
-      if (data?.privacy?.hash === null && $("hash").checked) notes.push("hash requested but HASH_SECRET may not be configured");
+      if ($("hash").checked && data?.result?.hash_note) notes.push(data.result.hash_note);
       $("notes").textContent = notes.length ? notes.join("\n") : "—";
 
     } catch (e) {
@@ -190,7 +232,7 @@
   });
 
   $("copy_e164").addEventListener("click", () => copyText(last?.e164));
-  $("copy_tel").addEventListener("click", () => copyText(last?.formats?.rfc3966));
+  $("copy_tel").addEventListener("click", () => copyText(last?.rfc3966));
   $("copy_json").addEventListener("click", () => copyText($("out").textContent));
 
   // run once
