@@ -4,111 +4,113 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>e164.it — Batch CSV</title>
-  <style>
-    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
-    body { margin: 24px; max-width: 980px; }
-    h1 { margin: 0 0 8px; font-size: 28px; }
-    .muted { color: #666; }
-    nav a { margin-right: 12px; }
-    label { display:block; font-size: 12px; color:#444; margin: 10px 0 6px; }
-    input, select, button { font: inherit; padding: 10px; border-radius: 10px; border: 1px solid #ccc; }
-    button { cursor: pointer; }
-    .row { display:grid; grid-template-columns: 1fr 220px; gap: 12px; }
-    .card { border: 1px solid #ddd; border-radius: 14px; padding: 14px; margin-top: 16px; }
-    pre { white-space: pre-wrap; word-break: break-word; }
-    .actions { display:flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; align-items: center; }
-    .pill { display:inline-block; padding:4px 10px; border-radius:999px; border:1px solid #ddd; font-size:12px; }
-  </style>
+  <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-  <nav>
-    <a href="/">Home</a>
-    <a href="/batch/">Batch CSV</a>
-    <a href="/api/">API</a>
-    <a href="/privacy/">Privacy</a>
-    <a href="/samples/sample.csv">Sample CSV</a>
-  </nav>
-
-  <h1>Batch CSV</h1>
-  <p class="muted">
-    Upload a CSV, pick the phone column, and download the enriched CSV (E.164, validity, masking, hash, etc.).
-  </p>
-
-  <p class="muted" style="font-size: 12px;">
-    Quick start: download <a href="/samples/sample.csv">sample.csv</a> (with header) or
-    <a href="/samples/sample_no_header.csv">sample_no_header.csv</a> (no header).
-  </p>
-
-  <div class="card">
-    <label>CSV file</label>
-    <input type="file" id="file" accept=".csv,text/csv" />
-
-    <div class="row" style="margin-top:12px;">
-      <div>
-        <label>Phone column (header name or 1-based index)</label>
-        <input id="phone_column" placeholder="e.g. phone or 3" value="phone" />
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">
+        <div class="logo">E.164</div>
+        <div>
+          <h1>Batch CSV</h1>
+          <p class="subtitle">Upload a CSV, pick the phone column, download enriched results (E.164, validity, masking, hash).</p>
+        </div>
       </div>
-      <div>
-        <label>Default region</label>
-        <select id="region">
-          <option value="">(auto)</option>
-          <option value="IT" selected>IT</option>
-          <option value="US">US</option>
-          <option value="GB">GB</option>
-          <option value="FR">FR</option>
-          <option value="DE">DE</option>
-          <option value="ES">ES</option>
-        </select>
+      <nav>
+        <a href="/">Single</a>
+        <a href="/batch/" aria-current="page">Batch CSV</a>
+        <a href="/api/">API</a>
+        <a href="/privacy/">Privacy</a>
+      </nav>
+    </header>
+
+    <main class="stack">
+      <div class="card">
+        <p class="muted small">
+          Quick start: <a href="/samples/sample.csv">sample.csv</a> (with header) or
+          <a href="/samples/sample_no_header.csv">sample_no_header.csv</a> (no header).
+        </p>
+
+        <div class="stack">
+          <div>
+            <label for="file">CSV file</label>
+            <input type="file" id="file" accept=".csv,text/csv" />
+          </div>
+
+          <div class="row">
+            <div>
+              <label for="phone_column">Phone column (header name or 1-based index)</label>
+              <input id="phone_column" placeholder="e.g. phone or 3" value="phone" />
+            </div>
+            <div>
+              <label for="region">Default region</label>
+              <select id="region">
+                <option value="">(auto)</option>
+                <option value="IT" selected>IT</option>
+                <option value="US">US</option>
+                <option value="GB">GB</option>
+                <option value="FR">FR</option>
+                <option value="DE">DE</option>
+                <option value="ES">ES</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label for="api_key">API key (optional)</label>
+            <input id="api_key" placeholder="e164_..." autocomplete="off" />
+            <div class="muted small" id="rl">Rate limit: —</div>
+            <div class="muted small" id="batch_stats">Batch stats: —</div>
+          </div>
+
+          <div class="actions">
+            <label class="pill"><input type="checkbox" id="has_header" checked> has header row</label>
+
+            <label class="pill">
+              delimiter:
+              <select id="delimiter">
+                <option value="auto" selected>auto</option>
+                <option value=",">comma</option>
+                <option value=";">semicolon</option>
+                <option value="">tab</option>
+              </select>
+            </label>
+
+            <label class="pill">
+              masking:
+              <select id="mask">
+                <option value="none" selected>none</option>
+                <option value="last2">last2</option>
+                <option value="last4">last4</option>
+              </select>
+            </label>
+
+            <label class="pill"><input type="checkbox" id="hash"> hash (HMAC)</label>
+            <span id="status" class="pill" aria-live="polite">idle</span>
+            <a href="/samples/sample.csv" class="pill">Sample CSV</a>
+          </div>
+
+          <div class="actions">
+            <button id="run" class="primary">Process & Download</button>
+            <a id="download" style="display:none;" class="pill" download="e164_batch_results.csv">Download ready</a>
+          </div>
+
+          <p class="muted small">
+            V1 limits: ~5MB max file size. For larger batches we will add async jobs (Queues/Workflows).
+          </p>
+        </div>
       </div>
-    </div>
 
-    <div style="margin-top:12px;">
-      <label for="api_key">API key (optional)</label>
-      <input id="api_key" placeholder="e164_..." autocomplete="off" />
-      <div class="muted" id="rl" style="font-size:12px; margin-top:6px;">Rate limit: —</div>
-    <div class="muted" style="font-size:12px;" id="batch_stats">Batch stats: —</div>
-    </div>
+      <div class="card">
+        <div class="muted small">Preview (first ~40 lines)</div>
+        <pre id="preview">—</pre>
+      </div>
+    </main>
 
-
-    <div class="actions">
-      <label class="pill"><input type="checkbox" id="has_header" checked> has header row</label>
-
-      <label class="pill">
-        delimiter:
-        <select id="delimiter" style="margin-left:6px; padding:4px 8px;">
-          <option value="auto" selected>auto</option>
-          <option value=",">comma</option>
-          <option value=";">semicolon</option>
-          <option value="">tab</option>
-        </select>
-      </label>
-
-      <label class="pill">
-        masking:
-        <select id="mask" style="margin-left:6px; padding:4px 8px;">
-          <option value="none" selected>none</option>
-          <option value="last2">last2</option>
-          <option value="last4">last4</option>
-        </select>
-      </label>
-
-      <label class="pill"><input type="checkbox" id="hash"> hash (HMAC)</label>
-      <span id="status" class="pill">idle</span>
-    </div>
-
-    <div class="actions">
-      <button id="run">Process & Download</button>
-      <a id="download" style="display:none;" class="pill" download="e164_batch_results.csv">Download ready</a>
-    </div>
-
-    <p class="muted" style="margin-top:10px; font-size:12px;">
-      V1 limits: ~5MB max file size. For larger batches we will add async jobs (Queues/Workflows).
-    </p>
-  </div>
-
-  <div class="card">
-    <div class="muted" style="font-size:12px;">Preview (first ~40 lines)</div>
-    <pre id="preview">—</pre>
+    <footer class="meta">
+      <span>Endpoint: <code>POST /v1/batch/parse</code></span>
+      <span class="muted">Tip: keep API key in localStorage</span>
+    </footer>
   </div>
 
 <script>
@@ -141,7 +143,6 @@
       el.textContent = "Rate limit: —";
     }
   }
-
 
   function setStatus(t) { $("status").textContent = t; }
 
@@ -180,8 +181,8 @@
       const bo = res.headers.get("x-batch-rows-ok");
       const bf = res.headers.get("x-batch-rows-failed");
       const bs = $("batch_stats");
-if (bs) bs.textContent = (bt && bo && bf) ? `Batch stats: ${bo} ok, ${bf} failed, ${bt} total` : "Batch stats: —";
-updateRateLimit(res);
+      if (bs) bs.textContent = (bt && bo && bf) ? `Batch stats: ${bo} ok, ${bf} failed, ${bt} total` : "Batch stats: —";
+      updateRateLimit(res);
 
       if (!res.ok) {
         const t = await res.text();
