@@ -5,34 +5,260 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>e164.it — E.164 formatter & validator</title>
   <style>
-    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
-    body { margin: 24px; max-width: 980px; }
-    h1 { margin: 0 0 8px; font-size: 28px; }
-    .muted { color: #666; }
-    .row { display: grid; grid-template-columns: 1fr 220px; gap: 12px; align-items: end; }
-    label { display: block; font-size: 12px; color: #444; margin-bottom: 6px; }
-    input, select, button, textarea { font: inherit; padding: 10px; border-radius: 10px; border: 1px solid #ccc; }
-    button { cursor: pointer; }
-    .opts { display: flex; gap: 16px; flex-wrap: wrap; margin: 14px 0; }
-    .card { border: 1px solid #ddd; border-radius: 14px; padding: 14px; margin-top: 16px; }
-    pre { white-space: pre-wrap; word-break: break-word; margin: 0; }
-    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
-    .pill { display: inline-block; padding: 4px 10px; border-radius: 999px; border: 1px solid #ddd; font-size: 12px; }
-    .ok { border-color: #9ad29a; }
-    .bad { border-color: #f0a0a0; }
-    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .small { font-size: 12px; }
+    :root{
+      --bg: #0b0d12;
+      --card: rgba(255,255,255,.06);
+      --card2: rgba(255,255,255,.04);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.64);
+      --border: rgba(255,255,255,.12);
+      --focus: rgba(120,180,255,.55);
+      --accent: #7cc4ff;
+
+      --radius: 16px;
+      --radius2: 12px;
+      --shadow: 0 18px 60px rgba(0,0,0,.35);
+
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root{
+        --bg: #f6f7fb;
+        --card: rgba(0,0,0,.04);
+        --card2: rgba(0,0,0,.03);
+        --text: rgba(0,0,0,.90);
+        --muted: rgba(0,0,0,.58);
+        --border: rgba(0,0,0,.12);
+        --focus: rgba(40,110,255,.25);
+        --accent: #1769ff;
+        --shadow: 0 18px 60px rgba(0,0,0,.10);
+      }
+    }
+
+    *{ box-sizing: border-box; }
+    html{ color-scheme: light dark; }
+    body{
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--text);
+      background:
+        radial-gradient(900px 600px at 20% -10%, rgba(124,196,255,.22), transparent 55%),
+        radial-gradient(900px 600px at 120% 10%, rgba(160,120,255,.18), transparent 55%),
+        linear-gradient(180deg, var(--bg), var(--bg));
+      min-height: 100vh;
+    }
+
+    a{ color: inherit; text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+
+    code{ font-family: var(--mono); font-size: .95em; }
+
+    .wrap{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 18px 44px;
+    }
+
+    header.top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom: 16px;
+    }
+
+    .brand{ display:flex; gap:12px; align-items:center; }
+
+    .logo{
+      width: 44px; height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(124,196,255,.30), rgba(160,120,255,.24));
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      display:grid; place-items:center;
+      font-weight: 750;
+      letter-spacing: .4px;
+      user-select:none;
+    }
+
+    h1{ margin: 0; font-size: 26px; line-height: 1.15; }
+    .subtitle{ margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+
+    nav{ display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
+    nav a{
+      font-size: 13px;
+      color: var(--muted);
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+    }
+    nav a:hover{
+      color: var(--text);
+      border-color: var(--border);
+      background: var(--card2);
+      text-decoration: none;
+    }
+    nav a[aria-current="page"]{
+      color: var(--text);
+      border-color: var(--border);
+      background: var(--card);
+    }
+
+    .muted{ color: var(--muted); }
+
+    .stack{ display:flex; flex-direction:column; gap: 14px; }
+
+    .card{
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--card), var(--card2));
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    .row{
+      display: grid;
+      grid-template-columns: 1fr minmax(200px, 260px);
+      gap: 12px;
+      align-items: end;
+    }
+    @media (max-width: 720px){
+      .row{ grid-template-columns: 1fr; align-items: stretch; }
+      nav{ justify-content:flex-start; }
+      header.top{ flex-direction:column; align-items:stretch; }
+    }
+
+    label{
+      display:block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      letter-spacing: .2px;
+    }
+
+    input, select, button, textarea{
+      font: inherit;
+      padding: 10px 12px;
+      border-radius: var(--radius2);
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.05);
+      color: var(--text);
+      outline: none;
+    }
+    @media (prefers-color-scheme: light){
+      input, select, button, textarea{ background: rgba(0,0,0,.02); }
+    }
+
+    input::placeholder{ color: rgba(255,255,255,.45); }
+    @media (prefers-color-scheme: light){
+      input::placeholder{ color: rgba(0,0,0,.35); }
+    }
+
+    input:focus, select:focus, textarea:focus, button:focus{
+      box-shadow: 0 0 0 4px var(--focus);
+      border-color: rgba(124,196,255,.55);
+    }
+
+    button{ cursor: pointer; font-weight: 650; }
+    button:hover{ background: rgba(255,255,255,.10); }
+    @media (prefers-color-scheme: light){
+      button:hover{ background: rgba(0,0,0,.05); }
+    }
+
+    button.primary{
+      border-color: rgba(124,196,255,.40);
+      background: linear-gradient(135deg, rgba(124,196,255,.22), rgba(160,120,255,.16));
+    }
+
+    .opts{
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 14px 0 0;
+    }
+
+    .pill{
+      display: inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.05);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .pill input[type="checkbox"]{ width: 16px; height: 16px; padding: 0; }
+    .ok{ border-color: rgba(60,190,90,.55); }
+    .bad{ border-color: rgba(230,80,80,.55); }
+
+    .actions{ display:flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+
+    .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 860px){ .grid2{ grid-template-columns: 1fr; } }
+
+    pre{
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 0;
+      padding: 12px;
+      border-radius: var(--radius2);
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.22);
+      font-family: var(--mono);
+      font-size: 12.5px;
+      line-height: 1.5;
+      tab-size: 2;
+    }
+    @media (prefers-color-scheme: light){
+      pre{ background: rgba(0,0,0,.05); }
+    }
+
+    .small{ font-size: 12px; }
+
+    .meta{
+      display:flex;
+      justify-content:space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .meta a{ color: var(--muted); }
+    .meta a:hover{ color: var(--text); }
+
+    @media (prefers-reduced-motion: reduce){
+      *{ transition: none !important; scroll-behavior: auto !important; }
+    }
   </style>
 </head>
 <body>
-  <h1>e164.it</h1>
-  <p class="muted">Phone number formatter / validator (E.164) with outputs useful for VoIP, CRM, and logging.</p>
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">164</div>
+        <div>
+          <h1>e164.it</h1>
+          <p class="subtitle">Phone number formatter / validator (E.164) with outputs useful for VoIP, CRM, and logging.</p>
+        </div>
+      </div>
+      <nav aria-label="Primary">
+        <a href="/" aria-current="page">Single</a>
+        <a href="/batch">Batch CSV</a>
+        <a href="#api">API</a>
+        <a href="#privacy">Privacy</a>
+      </nav>
+    </header>
 
-  <div class="card">
+    <main class="stack">
+<div class="card">
     <div class="row">
       <div>
         <label for="input">Phone number (messy input is OK)</label>
-        <input id="input" placeholder="e.g. 0039 333 123 4567" value="0039 333 123 4567" />
+        <input id="input" placeholder="e.g. 0039 333 123 4567" value="0039 333 123 4567" inputmode="tel" autocomplete="tel" />
       </div>
       <div>
         <label for="region">Default region (if country code is missing)</label>
@@ -73,7 +299,7 @@
 
 
     <div class="actions">
-      <button id="btn">Parse</button>
+      <button id="btn" class="primary">Parse</button>
       <button id="btn_example_it" type="button">Example (IT)</button>
       <button id="btn_example_us" type="button">Example (US)</button>
       <span id="status" class="pill">idle</span>
@@ -102,9 +328,15 @@
     </div>
   </div>
 
-  <p class="muted small" style="margin-top:16px;">
-    API: <code>POST /v1/parse</code>. Privacy: the endpoint can produce <em>masked</em> and <em>hash</em> outputs without storing the raw number.
-  </p>
+        <p class="muted small" id="api">
+        API: <code>POST /v1/parse</code>. <span id="privacy">Privacy: the endpoint can produce <em>masked</em> and <em>hash</em> outputs without storing the raw number.</span>
+      </p>
+
+      <footer class="meta">
+        <span>Local-only: API key saved in your browser (localStorage).</span>
+        <span><a href="/batch">Go to Batch CSV →</a></span>
+      </footer>
+    </main>
 
 <script>
   const $ = (id) => document.getElementById(id);
@@ -238,5 +470,6 @@
   // run once
   parseNow();
 </script>
+  </div>
 </body>
 </html>
