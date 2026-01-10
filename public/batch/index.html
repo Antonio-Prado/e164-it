@@ -45,7 +45,7 @@
 
     <div class="row" style="margin-top:12px;">
       <div>
-        <label>Phone column (header name or 0-based index)</label>
+        <label>Phone column (header name or 1-based index)</label>
         <input id="phone_column" placeholder="e.g. phone or 3" value="phone" />
       </div>
       <div>
@@ -154,13 +154,16 @@
     const f = $("file").files?.[0];
     if (!f) { setStatus("missing file"); return; }
 
+    const phoneCol = $("phone_column").value.trim();
+    if (!phoneCol) { setStatus("missing phone_column"); return; }
+
     setStatus("uploading…");
     $("download").style.display = "none";
     $("download").removeAttribute("href");
 
     const fd = new FormData();
     fd.append("file", f, f.name);
-    fd.append("phone_column", $("phone_column").value.trim());
+    fd.append("phone_column", phoneCol);
     fd.append("default_region", $("region").value || "");
     fd.append("has_header", $("has_header").checked ? "true" : "false");
     fd.append("delimiter", $("delimiter").value);
@@ -190,8 +193,12 @@ updateRateLimit(res);
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
 
-      $("download").href = url;
-      $("download").style.display = "inline-block";
+      const a = $("download");
+      a.href = url;
+      a.style.display = "inline-block";
+      a.textContent = "Download result";
+
+      try { a.click(); } catch {}
 
       const txt = await blob.text();
       previewText(txt);
