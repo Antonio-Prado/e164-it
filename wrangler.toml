@@ -7,6 +7,17 @@ compatibility_date = "2026-01-10"
 HASH_SECRET = "anbfgcer6yh438d8S7V6h19Z8K5M9S6g"
 NODE_VERSION = "22"
 
+# Pages note: if you override any non-inheritable keys in env.production (e.g. vars),
+# you must also define the non-inheritable bindings you rely on (e.g. D1/KV) in env.production.
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "e164-it"
+database_id = "e7086175-ad57-4823-b2a7-cd65129b6bff"
+
+[[env.production.kv_namespaces]]
+binding = "RL"
+id = "7a6587af3b194526b688366840fb743a"
+
 # --- bindings ---
 [[d1_databases]]
 binding = "DB"
