@@ -1,0 +1,23 @@
+{
+  "name": "e164-it",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Antonio-Prado/e164-it.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Antonio-Prado/e164-it/issues"
+  },
+  "homepage": "https://github.com/Antonio-Prado/e164-it#readme",
+  "dependencies": {
+    "libphonenumber-js": "^1.12.33"
+  }
+}
