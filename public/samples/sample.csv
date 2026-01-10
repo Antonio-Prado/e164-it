@@ -1,0 +1,9 @@
+id,name,phone,note
+1,Alice,0039 333 123 4567,IT messy
+2,Bob,+39 06 6982,IT Rome landline-ish
+3,Charlie,3331234567,Missing country code
+4,Diana,(415) 555-2671,US formatted
+5,Eve,not-a-number,Invalid
+6,Frank,,Empty
+7,Grace,+44 20 7946 0958,UK
+8,Heidi,0033 1 42 68 53 00,FR

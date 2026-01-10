@@ -9,6 +9,7 @@
     body { margin: 24px; max-width: 980px; }
     h1 { margin: 0 0 8px; font-size: 28px; }
     .muted { color: #666; }
+    nav a { margin-right: 12px; }
     label { display:block; font-size: 12px; color:#444; margin: 10px 0 6px; }
     input, select, button { font: inherit; padding: 10px; border-radius: 10px; border: 1px solid #ccc; }
     button { cursor: pointer; }
@@ -20,9 +21,22 @@
   </style>
 </head>
 <body>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/batch/">Batch CSV</a>
+    <a href="/api/">API</a>
+    <a href="/privacy/">Privacy</a>
+    <a href="/samples/sample.csv">Sample CSV</a>
+  </nav>
+
   <h1>Batch CSV</h1>
   <p class="muted">
     Upload a CSV, pick the phone column, and download the enriched CSV (E.164, validity, masking, hash, etc.).
+  </p>
+
+  <p class="muted" style="font-size: 12px;">
+    Quick start: download <a href="/samples/sample.csv">sample.csv</a> (with header) or
+    <a href="/samples/sample_no_header.csv">sample_no_header.csv</a> (no header).
   </p>
 
   <div class="card">
@@ -92,9 +106,7 @@
 <script>
   const $ = (id) => document.getElementById(id);
 
-  function setStatus(t) {
-    $("status").textContent = t;
-  }
+  function setStatus(t) { $("status").textContent = t; }
 
   function previewText(text) {
     const lines = text.split(/\r?\n/).slice(0, 40).join("\n");
@@ -103,10 +115,7 @@
 
   $("run").addEventListener("click", async () => {
     const f = $("file").files?.[0];
-    if (!f) {
-      setStatus("missing file");
-      return;
-    }
+    if (!f) { setStatus("missing file"); return; }
 
     setStatus("uploading…");
     $("download").style.display = "none";
@@ -137,7 +146,6 @@
       $("download").href = url;
       $("download").style.display = "inline-block";
 
-      // Preview
       const txt = await blob.text();
       previewText(txt);
 

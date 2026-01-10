@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>e164.it — Privacy</title>
+  <style>
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+    body { margin: 24px; max-width: 980px; }
+    .muted { color: #666; }
+    nav a { margin-right: 12px; }
+    li { margin: 6px 0; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/batch/">Batch CSV</a>
+    <a href="/api/">API</a>
+    <a href="/privacy/">Privacy</a>
+  </nav>
+
+  <h1>Privacy</h1>
+  <p class="muted">Short version (V1): this tool is designed to avoid storing raw phone numbers.</p>
+
+  <ul>
+    <li>The API processes input and returns normalized outputs.</li>
+    <li>By default, raw numbers are not meant to be persisted server-side.</li>
+    <li>Optional outputs include <strong>masked</strong> and <strong>HMAC hash</strong> (requires <code>HASH_SECRET</code>).</li>
+    <li>Batch results are generated on the fly and returned as a CSV download.</li>
+  </ul>
+
+  <p class="muted">
+    This page will be expanded when we add API keys, quotas, and async batch jobs.
+  </p>
+</body>
+</html>

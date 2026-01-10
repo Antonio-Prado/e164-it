@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>e164.it — API</title>
+  <style>
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+    body { margin: 24px; max-width: 980px; }
+    .muted { color: #666; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    pre { padding: 12px; border: 1px solid #ddd; border-radius: 12px; overflow:auto; }
+    nav a { margin-right: 12px; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/batch/">Batch CSV</a>
+    <a href="/api/">API</a>
+    <a href="/privacy/">Privacy</a>
+    <a href="/samples/sample.csv">Sample CSV</a>
+  </nav>
+
+  <h1>API</h1>
+  <p class="muted">V1 endpoints (no auth yet). Everything returns UTF-8.</p>
+
+  <h2>POST /v1/parse</h2>
+  <pre><code>curl -i -X POST https://e164.it/v1/parse \
+  -H 'content-type: application/json' \
+  -d '{
+    "input": "0039 333 123 4567",
+    "default_region": "IT",
+    "options": {
+      "format": ["e164","international","national","rfc3966"],
+      "classify": true,
+      "mask": {"mode":"last4"},
+      "hash": {"enabled": false}
+    }
+  }'</code></pre>
+
+  <h2>POST /v1/batch/parse</h2>
+  <p class="muted">Multipart CSV upload. Returns a CSV attachment.</p>
+  <pre><code>curl -i -X POST https://e164.it/v1/batch/parse \
+  -F "file=@sample.csv" \
+  -F "phone_column=phone" \
+  -F "default_region=IT" \
+  -F "has_header=true" \
+  -F "delimiter=auto" \
+  -F "mask_mode=last4" \
+  -F "hash_enabled=false" \
+  -o e164_batch_results.csv</code></pre>
+
+  <p class="muted">
+    Notes: batch V1 limit is ~5MB per file. For bigger workloads we will add async jobs.
+  </p>
+</body>
+</html>

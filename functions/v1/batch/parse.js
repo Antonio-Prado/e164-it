@@ -1,5 +1,20 @@
 import { parsePhoneNumberFromString } from "libphonenumber-js/max";
 
+function corsHeaders() {
+  return {
+    "access-control-allow-origin": "*",
+    "access-control-allow-headers": "content-type, authorization",
+    "access-control-allow-methods": "GET,POST,OPTIONS",
+  };
+}
+
+function json(data, status = 200) {
+  return new Response(JSON.stringify(data, null, 2), {
+    status,
+    headers: { "content-type": "application/json; charset=utf-8", ...corsHeaders() },
+  });
+}
+
 function maskE164(e164, mode) {
   if (!e164 || typeof e164 !== "string") return "";
   if (!mode || mode === "none") return "";
@@ -11,9 +26,7 @@ function maskE164(e164, mode) {
 }
 
 function toHex(buf) {
-  return [...new Uint8Array(buf)]
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
+  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 async function hmacSha256Hex(secret, message) {
@@ -39,29 +52,16 @@ function parseFirstRow(text, delimiter) {
 
     if (inQuotes) {
       if (c === '"') {
-        if (text[i + 1] === '"') {
-          field += '"';
-          i++;
-        } else {
-          inQuotes = false;
-        }
-      } else {
-        field += c;
-      }
+        if (text[i + 1] === '"') { field += '"'; i++; }
+        else inQuotes = false;
+      } else field += c;
       continue;
     }
 
-    if (c === '"') {
-      inQuotes = true;
-    } else if (c === delimiter) {
-      row.push(field);
-      field = "";
-    } else if (c === "\n" || c === "\r") {
-      row.push(field);
-      return row;
-    } else {
-      field += c;
-    }
+    if (c === '"') inQuotes = true;
+    else if (c === delimiter) { row.push(field); field = ""; }
+    else if (c === "\n" || c === "\r") { row.push(field); return row; }
+    else field += c;
   }
 
   row.push(field);
@@ -75,10 +75,7 @@ function detectDelimiter(sample) {
 
   for (const d of candidates) {
     const cols = parseFirstRow(sample, d).length;
-    if (cols > bestCols) {
-      bestCols = cols;
-      best = d;
-    }
+    if (cols > bestCols) { bestCols = cols; best = d; }
   }
   return best;
 }
@@ -94,49 +91,22 @@ function parseCSV(text, delimiter) {
 
     if (inQuotes) {
       if (c === '"') {
-        if (text[i + 1] === '"') {
-          field += '"';
-          i++;
-        } else {
-          inQuotes = false;
-        }
-      } else {
-        field += c;
-      }
+        if (text[i + 1] === '"') { field += '"'; i++; }
+        else inQuotes = false;
+      } else field += c;
       continue;
     }
 
-    if (c === '"') {
-      inQuotes = true;
-    } else if (c === delimiter) {
-      row.push(field);
-      field = "";
-    } else if (c === "\n") {
-      row.push(field);
-      rows.push(row);
-      row = [];
-      field = "";
-    } else if (c === "\r") {
-      // Treat CR as newline (and swallow CRLF)
-      row.push(field);
-      rows.push(row);
-      row = [];
-      field = "";
+    if (c === '"') inQuotes = true;
+    else if (c === delimiter) { row.push(field); field = ""; }
+    else if (c === "\n") { row.push(field); rows.push(row); row = []; field = ""; }
+    else if (c === "\r") {
+      row.push(field); rows.push(row); row = []; field = "";
       if (text[i + 1] === "\n") i++;
-    } else {
-      field += c;
-    }
+    } else field += c;
   }
 
-  // Flush last field/row (avoid adding a trailing empty line)
-  if (inQuotes) {
-    // Unclosed quotes: still return what we parsed.
-  }
-  if (field.length > 0 || row.length > 0) {
-    row.push(field);
-    rows.push(row);
-  }
-
+  if (field.length > 0 || row.length > 0) { row.push(field); rows.push(row); }
   return rows;
 }
 
@@ -148,23 +118,35 @@ function csvEscape(value, delimiter) {
   return s;
 }
 
-export async function onRequestPost({ request, env }) {
-  const ct = request.headers.get("content-type") || "";
-  if (!ct.includes("multipart/form-data")) {
-    return new Response(
-      JSON.stringify({ ok: false, error: "Expected multipart/form-data" }, null, 2),
-      { status: 400, headers: { "content-type": "application/json; charset=utf-8" } }
-    );
+export async function onRequest({ request, env }) {
+  if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders() });
+
+  if (request.method === "GET") {
+    return json({
+      ok: true,
+      endpoint: "/v1/batch/parse",
+      method: "POST multipart/form-data",
+      fields: [
+        "file (CSV)",
+        "phone_column (header name or 0-based index)",
+        "default_region (optional, e.g. IT)",
+        "has_header (true|false, default true)",
+        "delimiter (auto|,|;|tab, default auto)",
+        "mask_mode (none|last2|last4, default none)",
+        "hash_enabled (true|false, default false)"
+      ],
+      returns: "CSV attachment with extra columns: e164, possible, valid, region, type, masked, hash, error"
+    });
   }
+
+  if (request.method !== "POST") return json({ ok: false, error: "Method not allowed" }, 405);
+
+  const ct = request.headers.get("content-type") || "";
+  if (!ct.includes("multipart/form-data")) return json({ ok: false, error: "Expected multipart/form-data" }, 400);
 
   const form = await request.formData();
   const file = form.get("file");
-  if (!file || typeof file === "string") {
-    return new Response(
-      JSON.stringify({ ok: false, error: "Missing file field" }, null, 2),
-      { status: 400, headers: { "content-type": "application/json; charset=utf-8" } }
-    );
-  }
+  if (!file || typeof file === "string") return json({ ok: false, error: "Missing file field" }, 400);
 
   const defaultRegion = (form.get("default_region") || "").toString() || undefined;
   const phoneColumnRaw = (form.get("phone_column") || "").toString().trim();
@@ -173,45 +155,26 @@ export async function onRequestPost({ request, env }) {
   const hashEnabled = ((form.get("hash_enabled") || "false").toString().toLowerCase() === "true");
   const delimiterPref = (form.get("delimiter") || "auto").toString();
 
-  // Keep V1 safe: limit input size (you can raise later).
   const text = await file.text();
   const maxBytes = 5_000_000; // ~5 MB
-  if (text.length > maxBytes) {
-    return new Response(
-      JSON.stringify({ ok: false, error: "File too large for V1 (max ~5MB)" }, null, 2),
-      { status: 413, headers: { "content-type": "application/json; charset=utf-8" } }
-    );
-  }
+  if (text.length > maxBytes) return json({ ok: false, error: "File too large for V1 (max ~5MB)" }, 413);
 
   const sample = text.slice(0, 8192);
   const delimiter = delimiterPref === "auto" ? detectDelimiter(sample) : delimiterPref;
 
   const rows = parseCSV(text, delimiter);
-  if (rows.length === 0) {
-    return new Response(
-      JSON.stringify({ ok: false, error: "Empty CSV" }, null, 2),
-      { status: 400, headers: { "content-type": "application/json; charset=utf-8" } }
-    );
-  }
+  if (rows.length === 0) return json({ ok: false, error: "Empty CSV" }, 400);
 
   let header = null;
   let startRow = 0;
 
-  if (hasHeader) {
-    header = rows[0];
-    startRow = 1;
-  }
+  if (hasHeader) { header = rows[0]; startRow = 1; }
 
-  // Resolve phone column index
   let phoneIdx = -1;
-
   if (hasHeader && header) {
     const asInt = Number.parseInt(phoneColumnRaw, 10);
-    if (!Number.isNaN(asInt) && String(asInt) === phoneColumnRaw) {
-      phoneIdx = asInt;
-    } else {
-      phoneIdx = header.indexOf(phoneColumnRaw);
-    }
+    if (!Number.isNaN(asInt) && String(asInt) === phoneColumnRaw) phoneIdx = asInt;
+    else phoneIdx = header.indexOf(phoneColumnRaw);
   } else {
     const asInt = Number.parseInt(phoneColumnRaw, 10);
     if (!Number.isNaN(asInt)) phoneIdx = asInt;
@@ -221,11 +184,7 @@ export async function onRequestPost({ request, env }) {
     const hint = hasHeader && header
       ? { available_columns: header }
       : { hint: "Set phone_column to a 0-based index when has_header=false" };
-
-    return new Response(
-      JSON.stringify({ ok: false, error: "Could not resolve phone column", ...hint }, null, 2),
-      { status: 400, headers: { "content-type": "application/json; charset=utf-8" } }
-    );
+    return json({ ok: false, error: "Could not resolve phone column", ...hint }, 400);
   }
 
   const outHeader = header
@@ -241,22 +200,13 @@ export async function onRequestPost({ request, env }) {
     const row = rows[r] ?? [];
     const raw = (row[phoneIdx] ?? "").toString();
 
-    let e164 = "";
-    let possible = "";
-    let valid = "";
-    let region = "";
-    let type = "";
-    let masked = "";
-    let hash = "";
-    let error = "";
+    let e164 = "", possible = "", valid = "", region = "", type = "", masked = "", hash = "", error = "";
 
-    if (!raw.trim()) {
-      error = "missing_phone_value";
-    } else {
+    if (!raw.trim()) error = "missing_phone_value";
+    else {
       const phone = parsePhoneNumberFromString(raw, defaultRegion);
-      if (!phone) {
-        error = "parse_failed";
-      } else {
+      if (!phone) error = "parse_failed";
+      else {
         possible = String(phone.isPossible());
         valid = String(phone.isValid());
         e164 = phone.number || "";
@@ -264,27 +214,17 @@ export async function onRequestPost({ request, env }) {
         type = (phone.getType?.() ?? "") || "";
         masked = maskE164(e164, maskMode);
 
-        if (hashEnabled) {
-          if (!secret) {
-            // Leave hash empty; client can detect this via UI note if desired.
-            hash = "";
-          } else if (e164) {
-            hash = "h_" + (await hmacSha256Hex(secret, e164));
-          }
+        if (hashEnabled && secret && e164) {
+          hash = "h_" + (await hmacSha256Hex(secret, e164));
         }
       }
     }
 
-    const base = header ? row : row; // keep original columns
-    const out = [...base, e164, possible, valid, region, type, masked, hash, error];
-    outRows.push(out);
+    outRows.push([...(row ?? []), e164, possible, valid, region, type, masked, hash, error]);
   }
 
-  // Emit UTF-8 CSV (with BOM for Excel friendliness)
   const bom = "\ufeff";
-  const csv = outRows
-    .map((row) => row.map((v) => csvEscape(v, delimiter)).join(delimiter))
-    .join("\n");
+  const csv = outRows.map((row) => row.map((v) => csvEscape(v, delimiter)).join(delimiter)).join("\n");
 
   return new Response(bom + csv, {
     status: 200,
@@ -292,6 +232,7 @@ export async function onRequestPost({ request, env }) {
       "content-type": "text/csv; charset=utf-8",
       "content-disposition": 'attachment; filename="e164_batch_results.csv"',
       "cache-control": "no-store",
+      ...corsHeaders(),
     },
   });
 }
