@@ -1,26 +1,200 @@
 <!doctype html>
 <html lang="it">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>e164.it</title>
-  </head>
-  <body>
-    <h1>e164.it</h1>
-    <p>Test Pages + Functions.</p>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>e164.it — E.164 formatter & validator</title>
+  <style>
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+    body { margin: 24px; max-width: 980px; }
+    h1 { margin: 0 0 8px; font-size: 28px; }
+    .muted { color: #666; }
+    .row { display: grid; grid-template-columns: 1fr 220px; gap: 12px; align-items: end; }
+    label { display: block; font-size: 12px; color: #444; margin-bottom: 6px; }
+    input, select, button, textarea { font: inherit; padding: 10px; border-radius: 10px; border: 1px solid #ccc; }
+    button { cursor: pointer; }
+    .opts { display: flex; gap: 16px; flex-wrap: wrap; margin: 14px 0; }
+    .card { border: 1px solid #ddd; border-radius: 14px; padding: 14px; margin-top: 16px; }
+    pre { white-space: pre-wrap; word-break: break-word; margin: 0; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+    .pill { display: inline-block; padding: 4px 10px; border-radius: 999px; border: 1px solid #ddd; font-size: 12px; }
+    .ok { border-color: #9ad29a; }
+    .bad { border-color: #f0a0a0; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .small { font-size: 12px; }
+  </style>
+</head>
+<body>
+  <h1>e164.it</h1>
+  <p class="muted">Formatter / validator per numeri telefonici (E.164) + output utili per VoIP, CRM e logging.</p>
 
-    <button id="btn">Prova /v1/parse</button>
-    <pre id="out"></pre>
+  <div class="card">
+    <div class="row">
+      <div>
+        <label for="input">Numero (anche “sporco”)</label>
+        <input id="input" placeholder="es. 0039 333 123 4567" value="0039 333 123 4567" />
+      </div>
+      <div>
+        <label for="region">Default region (se manca prefisso)</label>
+        <select id="region">
+          <option value="">(auto)</option>
+          <option value="IT" selected>IT</option>
+          <option value="US">US</option>
+          <option value="GB">GB</option>
+          <option value="FR">FR</option>
+          <option value="DE">DE</option>
+          <option value="ES">ES</option>
+        </select>
+      </div>
+    </div>
 
-    <script>
-      document.getElementById('btn').addEventListener('click', async () => {
-        const res = await fetch('/v1/parse', {
-          method: 'POST',
-          headers: {'content-type': 'application/json'},
-          body: JSON.stringify({ input: '0039 333 123 4567', default_region: 'IT' })
-        });
-        document.getElementById('out').textContent = await res.text();
+    <div class="opts">
+      <label class="pill"><input type="checkbox" id="fmt_intl" checked> international</label>
+      <label class="pill"><input type="checkbox" id="fmt_nat" checked> national</label>
+      <label class="pill"><input type="checkbox" id="fmt_rfc" checked> rfc3966 (tel:)</label>
+
+      <label class="pill">
+        Mask:
+        <select id="mask" style="margin-left:6px; padding:4px 8px;">
+          <option value="none" selected>none</option>
+          <option value="last2">last2</option>
+          <option value="last4">last4</option>
+        </select>
+      </label>
+
+      <label class="pill"><input type="checkbox" id="hash"> hash (HMAC)</label>
+    </div>
+
+    <div class="actions">
+      <button id="btn">Parse</button>
+      <button id="btn_example_it" type="button">Esempio IT</button>
+      <button id="btn_example_us" type="button">Esempio US</button>
+      <span id="status" class="pill">idle</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="grid2">
+      <div>
+        <div class="small muted">Risposta (JSON)</div>
+        <pre id="out">{}</pre>
+      </div>
+      <div>
+        <div class="small muted">Copie rapide</div>
+        <div class="actions">
+          <button id="copy_e164" type="button">Copia E.164</button>
+          <button id="copy_tel" type="button">Copia tel:</button>
+          <button id="copy_json" type="button">Copia JSON</button>
+        </div>
+
+        <div style="margin-top:12px;">
+          <div class="small muted">Note</div>
+          <pre id="notes" class="muted">—</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="muted small" style="margin-top:16px;">
+    API: <code>POST /v1/parse</code>. Privacy: l’endpoint può generare <em>masked</em> e <em>hash</em> senza memorizzare il numero.
+  </p>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  let last = null;
+
+  function setStatus(text, good=null) {
+    const el = $("status");
+    el.textContent = text;
+    el.classList.remove("ok","bad");
+    if (good === true) el.classList.add("ok");
+    if (good === false) el.classList.add("bad");
+  }
+
+  function buildOptions() {
+    const formats = ["e164"];
+    if ($("fmt_intl").checked) formats.push("international");
+    if ($("fmt_nat").checked) formats.push("national");
+    if ($("fmt_rfc").checked) formats.push("rfc3966");
+
+    return {
+      format: formats,
+      classify: true,
+      mask: { mode: $("mask").value },
+      hash: { enabled: $("hash").checked }
+    };
+  }
+
+  async function parseNow() {
+    setStatus("loading…");
+    $("notes").textContent = "—";
+    $("out").textContent = "{}";
+    last = null;
+
+    const input = $("input").value;
+    const default_region = $("region").value || undefined;
+    const payload = { input, default_region, options: buildOptions() };
+
+    try {
+      const res = await fetch("/v1/parse", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload)
       });
-    </script>
-  </body>
+
+      const txt = await res.text();
+      let data;
+      try { data = JSON.parse(txt); } catch { data = { raw: txt }; }
+
+      last = data;
+      $("out").textContent = JSON.stringify(data, null, 2);
+
+      const good = Boolean(data && data.ok && data.valid);
+      if (data && data.ok && data.valid === false) {
+        setStatus("ok=false (invalid)", false);
+      } else {
+        setStatus(res.ok ? "ok" : ("http " + res.status), good);
+      }
+
+      // notes
+      const notes = [];
+      if (data?.warnings?.length) notes.push("warnings: " + data.warnings.join("; "));
+      if (data?.errors?.length) notes.push("errors: " + data.errors.join("; "));
+      if (data?.privacy?.hash === null && $("hash").checked) notes.push("hash richiesto ma HASH_SECRET forse non è configurato");
+      $("notes").textContent = notes.length ? notes.join("\n") : "—";
+
+    } catch (e) {
+      setStatus("error", false);
+      $("out").textContent = String(e);
+    }
+  }
+
+  async function copyText(t) {
+    if (!t) return;
+    try { await navigator.clipboard.writeText(t); } catch {}
+  }
+
+  $("btn").addEventListener("click", parseNow);
+
+  $("btn_example_it").addEventListener("click", () => {
+    $("input").value = "0039 333 123 4567";
+    $("region").value = "IT";
+    parseNow();
+  });
+
+  $("btn_example_us").addEventListener("click", () => {
+    $("input").value = "(415) 555-2671";
+    $("region").value = "US";
+    parseNow();
+  });
+
+  $("copy_e164").addEventListener("click", () => copyText(last?.e164));
+  $("copy_tel").addEventListener("click", () => copyText(last?.formats?.rfc3966));
+  $("copy_json").addEventListener("click", () => copyText($("out").textContent));
+
+  // run once
+  parseNow();
+</script>
+</body>
 </html>
