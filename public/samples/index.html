@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Sample CSV files for e164.it batch parsing." />
+  <link rel="stylesheet" href="/styles.tech.css">
+  <title>e164.it — Samples</title>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">E.164</div>
+        <div>
+          <h1>Samples</h1>
+          <p class="subtitle">Small CSV fixtures for testing the Batch endpoint and UI.</p>
+        </div>
+      </div>
+      <nav aria-label="Primary">
+        <a href="/">Single</a>
+        <a href="/batch/">Batch CSV</a>
+        <a href="/api/">API</a>
+        <a href="/privacy/">Privacy</a>
+        <a href="/samples/" aria-current="page">Samples</a>
+      </nav>
+    </header>
+
+    <main class="stack">
+      <div class="card">
+        <div class="small muted">Downloads</div>
+        <div class="actions" style="margin-top:10px;">
+          <a class="pill" href="/samples/sample.csv" download>sample.csv</a>
+          <a class="pill" href="/samples/sample_no_header.csv" download>sample_no_header.csv</a>
+        </div>
+
+        <p class="small muted" style="margin-top:10px;">
+          Use <code>sample.csv</code> when <code>has_header=true</code>. Use <code>sample_no_header.csv</code> when <code>has_header=false</code>
+          and set <code>phone_column</code> to a 1-based index.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="small muted">Quick curl</div>
+        <pre>curl -s \
+  -F "file=@sample.csv" \
+  -F "phone_column=phone" \
+  -F "default_region=IT" \
+  -F "has_header=true" \
+  -F "delimiter=auto" \
+  -F "mask_mode=none" \
+  -F "hash_enabled=false" \
+  https://e164.it/v1/batch/parse \
+  -o result.csv</pre>
+      </div>
+
+      <div class="card">
+        <div class="small muted">Notes</div>
+        <pre>Supported delimiters: auto, comma (,), semicolon (;), tab ("")
+Phone column: header name (when header present) or 1-based index (no header)
+Options: masking (none/last2/last4), hash (HMAC-derived) when enabled</pre>
+      </div>
+    </main>
+
+    <footer class="meta">
+      <span>Batch endpoint: <code>POST /v1/batch/parse</code></span>
+      <span><a href="/batch/">Batch CSV →</a></span>
+    </footer>
+  </div>
+</body>
+</html>
