@@ -24,7 +24,7 @@
   </style>
   <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
   <meta name="theme-color" content="#0b1460" />
-  <script defer src="/nav.js?v=3"></script>
+  <script defer src="/nav.js?v=5"></script>
 </head>
 <body>
   <div class="wrap">
@@ -64,7 +64,7 @@
         <label for="admin_token">Admin token</label>
         <input id="admin_token" placeholder="Bearer token" autocomplete="off" />
         <div class="muted" style="font-size:12px; margin-top:6px;">
-          Stored locally in your browser (localStorage). Never share it.
+          Stored locally in your browser (sessionStorage). Never share it.
         </div>
       </div>
       <div>
@@ -266,12 +266,12 @@
 
   $("save_token").addEventListener("click", () => {
     const t = $("admin_token").value.trim();
-    if (t) localStorage.setItem(TOKEN_KEY, t);
+    if (t) sessionStorage.setItem(TOKEN_KEY, t);
     setStatus("token saved");
   });
 
   $("clear_token").addEventListener("click", () => {
-    localStorage.removeItem(TOKEN_KEY);
+    sessionStorage.removeItem(TOKEN_KEY);
     $("admin_token").value = "";
     setStatus("token cleared");
   });
@@ -319,7 +319,7 @@
   });
 
   // Load token from storage.
-  $("admin_token").value = localStorage.getItem(TOKEN_KEY) || "";
+  $("admin_token").value = sessionStorage.getItem(TOKEN_KEY) || "";
   refresh().catch(() => setStatus("idle"));
 </script></body>
 </html>

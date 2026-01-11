@@ -11,14 +11,12 @@
     if (!p) return '/';
     p = p.split('?')[0].split('#')[0];
     if (!p.startsWith('/')) p = '/' + p;
-    // normalizza trailing slash (tutto con slash, tranne root)
     p = p.replace(/\/+$/, '/');
     return p === '//' ? '/' : p;
   };
 
   const pathname = norm(location.pathname);
 
-  // scegli la route più specifica (prefisso più lungo)
   let current = routes[0];
   for (const r of routes) {
     const rp = norm(r.path);
@@ -26,7 +24,6 @@
     if (match && rp.length > norm(current.path).length) current = r;
   }
 
-  // 1) evidenzia voce menu corretta (supporta sia aria-current sia class="active")
   const header = document.querySelector('header');
   if (header) {
     const links = header.querySelectorAll('nav a[href]');
@@ -39,8 +36,6 @@
       else a.removeAttribute('aria-current');
     });
 
-    // 2) corregge la label “Docs” in alto a sinistra se è una label di sezione
-    // (non tocca “e164.it” se lo usi come brand fisso)
     const brand = header.querySelector('.brand') || header;
     const candidates = [
       brand.querySelector('h1'),
@@ -58,7 +53,15 @@
     if (subtitleEl && current.subtitle) subtitleEl.textContent = current.subtitle;
   }
 
-  // 3) opzionale ma utile: corregge anche il titolo del tab se fosse clonato da Docs
   const base = 'e164.it';
   document.title = `${base} — ${current.label}`;
+
+  document.querySelectorAll('footer').forEach((footer) => footer.remove());
+  const footer = document.createElement('footer');
+  footer.className = 'meta';
+  footer.style.textAlign = 'center';
+  footer.style.display = 'block';
+  footer.style.width = '100%';
+  footer.innerHTML = 'Another tool brought to you by <a href="https://www.linkedin.com/in/antoniopradoit/" target="_blank" rel="noopener noreferrer">The Internet Floopaloo</a>.';
+  document.body.appendChild(footer);
 })();
