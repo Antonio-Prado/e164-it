@@ -60,9 +60,15 @@
   const footer = document.createElement('footer');
   footer.className = 'meta';
   footer.style.textAlign = 'center';
-  footer.style.display = 'block';
+  footer.style.display = 'flex';
+  footer.style.justifyContent = 'center';
+  footer.style.alignItems = 'center';
   footer.style.width = '100%';
+  footer.style.padding = '12px 0 20px';
+  footer.style.borderTop = 'none';
   const footerInner = document.createElement('span');
+  footerInner.style.display = 'inline-flex';
+  footerInner.style.alignItems = 'center';
   footerInner.innerHTML = 'Another tool brought to you by <a href="https://www.linkedin.com/in/antoniopradoit/" target="_blank" rel="noopener noreferrer">The Internet Floopaloo</a> • ';
   const sourceLink = document.createElement('a');
   sourceLink.href = 'https://github.com/Antonio-Prado/e164-it';
