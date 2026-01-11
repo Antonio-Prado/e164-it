@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://e164.it/</loc></url>
+  <url><loc>https://e164.it/batch/</loc></url>
+  <url><loc>https://e164.it/api/</loc></url>
+  <url><loc>https://e164.it/privacy/</loc></url>
+  <url><loc>https://e164.it/samples/</loc></url>
+  <url><loc>https://e164.it/docs/</loc></url>
+  <url><loc>https://e164.it/docs/api/</loc></url>
+  <url><loc>https://e164.it/docs/batch/</loc></url>
+  <url><loc>https://e164.it/docs/security/</loc></url>
+  <url><loc>https://e164.it/docs/faq/</loc></url>
+</urlset>

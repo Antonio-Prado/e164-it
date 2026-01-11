@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="e164.it documentation: API, Batch CSV, privacy & security notes." />
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http://www.w3.org/2000/svg'%20viewBox%3D'0%200%2064%2064'%3E%3Crect%20width%3D'64'%20height%3D'64'%20rx%3D'14'%20fill%3D'%23111113'/%3E%3Cpath%20d%3D'M18%2022h28v6H24v6h20v6H24v6h22v6H18z'%20fill%3D'%237cc4ff'/%3E%3C/svg%3E" />
+  <meta property="og:title" content="e164.it — Docs / Security" />
+  <meta property="og:description" content="e164.it docs: API, Batch CSV, security, and operational notes." />
+  <meta property="og:type" content="website" />
+  <title>e164.it — Docs / Security</title>
+  <style>
+    .doc h2 { margin: 0 0 8px; font-size: 16px; letter-spacing: .1px; }
+    .doc h3 { margin: 14px 0 8px; font-size: 13px; color: var(--text); }
+    .doc p, .doc li { color: var(--muted); font-size: 13px; line-height: 1.45; }
+    .doc ul { margin: 8px 0 0 18px; }
+    .doc .k { font-family: var(--mono); font-size: 12px; }
+    .doc .callout { border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; background: transparent; }
+    .doc .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 860px) { .doc .cols { grid-template-columns: 1fr; } }
+    .doc a { text-decoration: underline; text-underline-offset: 3px; }
+    .doc pre { margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">E.164</div>
+        <div>
+          <h1>Docs / Security</h1>
+          <p class="subtitle">Practical notes for minimizing exposure and handling keys/limits.</p>
+        </div>
+      </div>
+      <nav aria-label="Primary">
+        <a href="/">Single</a>
+        <a href="/batch">Batch CSV</a>
+        <a href="/docs" aria-current="page">Docs</a>
+        <a href="/api">API</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/samples">Samples</a>
+      </nav>
+    </header>
+
+    <main class="stack doc">
+      
+<div class="card">
+  <h2>Security & operational hygiene</h2>
+  <p>
+    Phone numbers are personal data in many contexts. Prefer derived outputs (masking / hash) when you need correlation
+    without storing raw values.
+  </p>
+
+  <h3>Recommendations</h3>
+  <ul>
+    <li>Use <span class="k">mask_mode</span> / <span class="k">options.mask.mode</span> when you don’t need the full number.</li>
+    <li>Use <span class="k">hash_enabled</span> / <span class="k">options.hash.enabled</span> for stable correlation in logs/CRM.</li>
+    <li>Keep API keys out of shared scripts; load them from env vars in CI.</li>
+    <li>Handle <span class="k">429</span> with backoff; don’t retry aggressively on <span class="k">5xx</span>.</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2>Client-side storage (web UI)</h2>
+  <p>
+    The UI stores the API key in <span class="k">localStorage</span> so you don’t have to retype it. Clear site data to remove it.
+  </p>
+</div>
+
+      <footer class="meta">
+        <span class="muted small">Docs live at <span class="k">/docs</span>. Same styling as the main UI.</span>
+        <span><a href="/">Back to Single →</a></span>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

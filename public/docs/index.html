@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="e164.it documentation: API, Batch CSV, privacy & security notes." />
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http://www.w3.org/2000/svg'%20viewBox%3D'0%200%2064%2064'%3E%3Crect%20width%3D'64'%20height%3D'64'%20rx%3D'14'%20fill%3D'%23111113'/%3E%3Cpath%20d%3D'M18%2022h28v6H24v6h20v6H24v6h22v6H18z'%20fill%3D'%237cc4ff'/%3E%3C/svg%3E" />
+  <meta property="og:title" content="e164.it — Docs" />
+  <meta property="og:description" content="e164.it docs: API, Batch CSV, security, and operational notes." />
+  <meta property="og:type" content="website" />
+  <title>e164.it — Docs</title>
+  <style>
+    .doc h2 { margin: 0 0 8px; font-size: 16px; letter-spacing: .1px; }
+    .doc h3 { margin: 14px 0 8px; font-size: 13px; color: var(--text); }
+    .doc p, .doc li { color: var(--muted); font-size: 13px; line-height: 1.45; }
+    .doc ul { margin: 8px 0 0 18px; }
+    .doc .k { font-family: var(--mono); font-size: 12px; }
+    .doc .callout { border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; background: transparent; }
+    .doc .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 860px) { .doc .cols { grid-template-columns: 1fr; } }
+    .doc a { text-decoration: underline; text-underline-offset: 3px; }
+    .doc pre { margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">E.164</div>
+        <div>
+          <h1>Docs</h1>
+          <p class="subtitle">API + Batch reference, operational notes, and examples.</p>
+        </div>
+      </div>
+      <nav aria-label="Primary">
+        <a href="/">Single</a>
+        <a href="/batch">Batch CSV</a>
+        <a href="/docs" aria-current="page">Docs</a>
+        <a href="/api">API</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/samples">Samples</a>
+      </nav>
+    </header>
+
+    <main class="stack doc">
+      
+<div class="card">
+  <h2>Overview</h2>
+  <p>
+    e164.it exposes a minimal HTTP API to normalize phone inputs and produce VoIP / CRM-friendly outputs.
+    You can use the web UI (<a href="/">Single</a> / <a href="/batch">Batch</a>) or call the endpoints directly.
+  </p>
+  <div class="cols" style="margin-top:12px;">
+    <div class="callout">
+      <h3>API reference</h3>
+      <ul>
+        <li><a href="/docs/api">POST /v1/parse</a> — parse a single number (JSON)</li>
+        <li><a href="/docs/batch">POST /v1/batch/parse</a> — upload CSV (multipart)</li>
+      </ul>
+    </div>
+    <div class="callout">
+      <h3>Operational notes</h3>
+      <ul>
+        <li><a href="/docs/security">Security</a> — headers, rate limiting, logging hygiene</li>
+        <li><a href="/docs/faq">FAQ</a> — common pitfalls & examples</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Quick start</h2>
+
+  <h3>Single (JSON)</h3>
+  <pre>curl -s \
+  -H "content-type: application/json" \
+  -d '{"input":"0039 333 123 4567","default_region":"IT","options":{"format":["e164","rfc3966"],"classify":true,"mask":{"mode":"last4"},"hash":{"enabled":true}}}' \
+  https://e164.it/v1/parse</pre>
+
+  <h3>Batch (CSV upload)</h3>
+  <pre>curl -s \
+  -F "file=@sample.csv" \
+  -F "phone_column=phone" \
+  -F "default_region=IT" \
+  -F "has_header=true" \
+  -F "delimiter=auto" \
+  -F "mask_mode=none" \
+  -F "hash_enabled=false" \
+  https://e164.it/v1/batch/parse \
+  -o result.csv</pre>
+
+  <p class="muted small" style="margin-top:10px;">
+    Tip: you can also grab fixtures from <a href="/samples">Samples</a>.
+  </p>
+</div>
+
+<div class="card">
+  <h2>Authentication & rate limits</h2>
+  <p>
+    If enabled for your project, send your key via <span class="k">x-api-key</span>. The web UI stores it locally in your browser
+    (<span class="k">localStorage</span>) for convenience.
+  </p>
+  <p>
+    When rate limiting is enabled, responses may include:
+    <span class="k">x-ratelimit-limit</span>, <span class="k">x-ratelimit-remaining</span>, <span class="k">x-ratelimit-reset</span>.
+  </p>
+</div>
+
+      <footer class="meta">
+        <span class="muted small">Docs live at <span class="k">/docs</span>. Same styling as the main UI.</span>
+        <span><a href="/">Back to Single →</a></span>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>
