@@ -216,3 +216,9 @@ Hashing requires server-side configuration of `HASH_SECRET`.
 - `functions/_lib/` — API key hashing, crypto helpers, rate limiting
 - `migrations/` — D1 migrations
 - `scripts/` — maintenance scripts (layout/nav updates)
+
+---
+
+## License
+ 
+ISC — see [`LICENSE`](LICENSE).
