@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="/styles.tech.css">
   <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
   <meta name="theme-color" content="#0b1460" />
-  <script defer src="/nav.js?v=3"></script>
+  <script defer src="/nav.js?v=5"></script>
 </head>
 <body>
   <div class="wrap">
@@ -125,11 +125,11 @@
   const API_KEY_STORAGE = "e164_api_key";
   const apiKeyEl = $("api_key");
   if (apiKeyEl) {
-    apiKeyEl.value = localStorage.getItem(API_KEY_STORAGE) || "";
+    apiKeyEl.value = sessionStorage.getItem(API_KEY_STORAGE) || "";
     apiKeyEl.addEventListener("input", () => {
       const v = apiKeyEl.value.trim();
-      if (v) localStorage.setItem(API_KEY_STORAGE, v);
-      else localStorage.removeItem(API_KEY_STORAGE);
+      if (v) sessionStorage.setItem(API_KEY_STORAGE, v);
+      else sessionStorage.removeItem(API_KEY_STORAGE);
     });
   }
 

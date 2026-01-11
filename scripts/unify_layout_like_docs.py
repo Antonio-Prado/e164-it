@@ -8,6 +8,7 @@ RE_BODY = re.compile(r"(<body\b[^>]*>)(.*?)(</body>)", re.I | re.S)
 RE_MAIN = re.compile(r"<main\b[^>]*>.*?</main>", re.I | re.S)
 RE_SCRIPT = re.compile(r"<script\b[^>]*>.*?</script\s*>|<script\b[^>]*/\s*>", re.I | re.S)
 RE_HEADER = re.compile(r"<header\b[^>]*>.*?</header>", re.I | re.S)
+RE_FOOTER = re.compile(r"<footer\b[^>]*>.*?</footer>", re.I | re.S)
 RE_CLASS = re.compile(r'\bclass\s*=\s*"([^"]*)"', re.I)
 
 def merge_body_classes(dst_body_open: str, src_body_open: str) -> str:
@@ -31,17 +32,17 @@ def merge_body_classes(dst_body_open: str, src_body_open: str) -> str:
 def extract_docs_shell(docs_html: str) -> tuple[str, str, str]:
     m = RE_BODY.search(docs_html)
     if not m:
-        raise SystemExit("Docs: <body> non trovato")
+        raise SystemExit("Docs: <body> not found")
     docs_body_open, docs_body, _ = m.group(1), m.group(2), m.group(3)
 
     mm = RE_MAIN.search(docs_body)
     if not mm:
-        raise SystemExit("Docs: <main>...</main> non trovato (serve per ricostruire la pagina)")
-    prefix = docs_body[:mm.start()]          # wrapper + header/nav fino a <main
-    suffix = docs_body[mm.end():]           # dopo </main>
+        raise SystemExit("Docs: <main>...</main> not found (required to rebuild the page)")
+    prefix = docs_body[:mm.start()]
+    suffix = docs_body[mm.end():]
 
-    # nello suffix della Docs teniamo solo struttura (chiusure wrapper/footer), togliamo eventuali script
     suffix_struct = RE_SCRIPT.sub("", suffix)
+    suffix_struct = RE_FOOTER.sub("", suffix_struct)
     return docs_body_open, prefix, suffix_struct
 
 def extract_target_payload(target_body: str) -> tuple[str, str]:
@@ -50,7 +51,6 @@ def extract_target_payload(target_body: str) -> tuple[str, str]:
 
     mm = RE_MAIN.search(body_wo_scripts)
     if not mm:
-        # fallback: se manca <main>, prendo tutto il body senza header e lo incapsulo in <main>
         hh = RE_HEADER.search(body_wo_scripts)
         content = body_wo_scripts[hh.end():] if hh else body_wo_scripts
         content = content.strip()
