@@ -62,28 +62,14 @@
   footer.style.textAlign = 'center';
   footer.style.display = 'block';
   footer.style.width = '100%';
-  const footerInner = document.createElement('div');
-  footerInner.style.display = 'grid';
-  footerInner.style.gridTemplateColumns = '1fr auto 1fr';
-  footerInner.style.alignItems = 'center';
-  footerInner.style.gap = '8px';
-  footerInner.style.width = '100%';
-
-  const left = document.createElement('span');
-  left.style.textAlign = 'left';
-  left.innerHTML = 'Another tool brought to you by <a href="https://www.linkedin.com/in/antoniopradoit/" target="_blank" rel="noopener noreferrer">The Internet Floopaloo</a>';
-
-  const middle = document.createElement('span');
-  middle.textContent = '•';
-
-  const right = document.createElement('span');
-  right.style.textAlign = 'right';
+  const footerInner = document.createElement('span');
+  footerInner.innerHTML = 'Another tool brought to you by <a href="https://www.linkedin.com/in/antoniopradoit/" target="_blank" rel="noopener noreferrer">The Internet Floopaloo</a> • ';
   const sourceLink = document.createElement('a');
   sourceLink.href = 'https://github.com/Antonio-Prado/e164-it';
   sourceLink.target = '_blank';
   sourceLink.rel = 'noopener noreferrer';
   sourceLink.textContent = 'Source';
-  right.appendChild(sourceLink);
+  footerInner.appendChild(sourceLink);
 
   fetch('https://api.github.com/repos/Antonio-Prado/e164-it/commits/main', { cache: 'no-store' })
     .then((res) => (res.ok ? res.json() : null))
@@ -97,7 +83,6 @@
     })
     .catch(() => {});
 
-  footerInner.append(left, middle, right);
   footer.appendChild(footerInner);
   document.body.appendChild(footer);
 })();
