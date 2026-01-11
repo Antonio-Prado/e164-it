@@ -54,7 +54,7 @@ export async function onRequest(context) {
   }
 
   // API key required for all other /v1/* endpoints
-  const apiKey = readApiKeyFromRequest(request);
+  const apiKey = readApiKeyFromRequest(request, env);
   if (!apiKey) {
     return json(401, { ok: false, error: { code: "missing_api_key", message: "Provide x-api-key header." } });
   }
