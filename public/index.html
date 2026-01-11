@@ -132,8 +132,7 @@
       </details>
 
 <footer class="meta">
-        <span>Local-only: API key stored in your browser (localStorage).</span>
-        <span><a href="/batch/">Go to Batch CSV →</a></span>
+        <span>Local-only: API key stored in your browser (sessionStorage).</span>
       </footer>
     </main>
   </div>
@@ -156,11 +155,11 @@
   const API_KEY_STORAGE = "e164_api_key";
   const apiKeyEl = $("api_key");
   if (apiKeyEl) {
-    apiKeyEl.value = localStorage.getItem(API_KEY_STORAGE) || "";
+    apiKeyEl.value = sessionStorage.getItem(API_KEY_STORAGE) || "";
     apiKeyEl.addEventListener("input", () => {
       const v = apiKeyEl.value.trim();
-      if (v) localStorage.setItem(API_KEY_STORAGE, v);
-      else localStorage.removeItem(API_KEY_STORAGE);
+      if (v) sessionStorage.setItem(API_KEY_STORAGE, v);
+      else sessionStorage.removeItem(API_KEY_STORAGE);
     });
   }
 
