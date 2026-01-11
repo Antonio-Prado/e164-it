@@ -57,7 +57,7 @@
       <div style="flex: 1; min-width: 280px;">
         <label for="api_key">API key (optional)</label>
         <input id="api_key" placeholder="e164_..." autocomplete="off" style="width: 100%;" />
-        <div class="muted" style="font-size:12px; margin-top:6px;">Stored locally in your browser (localStorage).</div>
+        <div class="muted" style="font-size:12px; margin-top:6px;">Stored locally in your browser (sessionStorage).</div>
       </div>
       <div style="min-width: 180px;">
         <label>&nbsp;</label>
@@ -75,15 +75,15 @@
     const apiKeyEl = document.getElementById("api_key");
     const clearBtn = document.getElementById("clear");
 
-    apiKeyEl.value = localStorage.getItem(STORAGE_KEY) || "";
+    apiKeyEl.value = sessionStorage.getItem(STORAGE_KEY) || "";
     apiKeyEl.addEventListener("input", () => {
       const v = apiKeyEl.value.trim();
-      if (v) localStorage.setItem(STORAGE_KEY, v);
-      else localStorage.removeItem(STORAGE_KEY);
+      if (v) sessionStorage.setItem(STORAGE_KEY, v);
+      else sessionStorage.removeItem(STORAGE_KEY);
     });
     clearBtn.addEventListener("click", () => {
       apiKeyEl.value = "";
-      localStorage.removeItem(STORAGE_KEY);
+      sessionStorage.removeItem(STORAGE_KEY);
     });
 
     window.ui = SwaggerUIBundle({
