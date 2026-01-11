@@ -1,13 +1,12 @@
 (() => {
   const routes = [
-    { path: '/',         label: 'Single' },
-    { path: '/batch/',   label: 'Batch CSV' },
-    { path: '/docs/',    label: 'Docs' },
-    { path: '/api/',     label: 'API' },
-    { path: '/privacy/', label: 'Privacy' },
-    { path: '/samples/', label: 'Samples' },
+    { path: '/',         label: 'Single',  subtitle: 'Parse/format E.164 numbers. VoIP/CRM-friendly outputs.' },
+    { path: '/batch/',   label: 'Batch CSV', subtitle: 'Process CSV batches: normalize, validate, export.' },
+    { path: '/docs/',    label: 'Docs',    subtitle: 'API + Batch reference, operational notes, and examples.' },
+    { path: '/api/',     label: 'API',     subtitle: 'Endpoints, parameters, and examples.' },
+    { path: '/privacy/', label: 'Privacy', subtitle: 'Privacy & security notes.' },
+    { path: '/samples/', label: 'Samples', subtitle: 'Examples and test vectors.' },
   ];
-
   const norm = (p) => {
     if (!p) return '/';
     p = p.split('?')[0].split('#')[0];
@@ -55,6 +54,8 @@
       const t = (el.textContent || '').trim().toLowerCase();
       if (known.has(t)) { el.textContent = current.label; break; }
     }
+    const subtitleEl = header.querySelector('.subtitle');
+    if (subtitleEl && current.subtitle) subtitleEl.textContent = current.subtitle;
   }
 
   // 3) opzionale ma utile: corregge anche il titolo del tab se fosse clonato da Docs
