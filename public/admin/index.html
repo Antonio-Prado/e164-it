@@ -26,7 +26,27 @@
   <meta name="theme-color" content="#0b1460" />
 </head>
 <body>
-  <nav>
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"><img src="/assets/e164-mark.svg?v=2" alt="" width="44" height="44" loading="lazy" /></div>
+        <div>
+          <h1>Docs</h1>
+          <p class="subtitle">API + Batch reference, operational notes, and examples.</p>
+        </div>
+      </div>
+      <nav aria-label="Primary">
+        <a href="/">Single</a>
+        <a href="/batch">Batch CSV</a>
+        <a href="/docs" aria-current="page">Docs</a>
+        <a href="/api">API</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/samples">Samples</a>
+      </nav>
+    </header>
+
+    <main>
+<nav>
     <a href="/">Home</a>
     <a href="/batch/">Batch CSV</a>
     <a href="/api/">API</a>
@@ -137,6 +157,8 @@
     <div class="muted" style="font-size:12px; margin-top:10px;">
       Tip: use PATCH to update limits; DELETE disables a key (soft).
     </div>
+  </div>
+</main>
   </div>
 
 <script>
@@ -298,6 +320,5 @@
   // Load token from storage.
   $("admin_token").value = localStorage.getItem(TOKEN_KEY) || "";
   refresh().catch(() => setStatus("idle"));
-</script>
-</body>
+</script></body>
 </html>

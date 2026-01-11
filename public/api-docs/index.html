@@ -20,7 +20,27 @@
   <meta name="theme-color" content="#0b1460" />
 </head>
 <body>
-  <nav>
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"><img src="/assets/e164-mark.svg?v=2" alt="" width="44" height="44" loading="lazy" /></div>
+        <div>
+          <h1>Docs</h1>
+          <p class="subtitle">API + Batch reference, operational notes, and examples.</p>
+        </div>
+      </div>
+      <nav aria-label="Primary">
+        <a href="/">Single</a>
+        <a href="/batch">Batch CSV</a>
+        <a href="/docs" aria-current="page">Docs</a>
+        <a href="/api">API</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/samples">Samples</a>
+      </nav>
+    </header>
+
+    <main>
+<nav>
     <a href="/">Home</a>
     <a href="/batch/">Batch CSV</a>
     <a href="/api/">API</a>
@@ -46,10 +66,10 @@
   </div>
 
   <div id="swagger-ui"></div>
+</main>
+  </div>
 
-  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
-  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
-  <script>
+<script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script><script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script><script>
     const STORAGE_KEY = "e164_api_key";
     const apiKeyEl = document.getElementById("api_key");
     const clearBtn = document.getElementById("clear");
@@ -83,6 +103,5 @@
         return req;
       },
     });
-  </script>
-</body>
+  </script></body>
 </html>
