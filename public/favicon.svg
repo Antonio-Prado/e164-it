@@ -1,13 +1,43 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="e164">
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 64 64" role="img" aria-label="e164">
   <defs>
-    <linearGradient id="g" x1="10" y1="10" x2="54" y2="54" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#2BD3FB"/>
-      <stop offset="1" stop-color="#7C5CFF"/>
+    <radialGradient id="bg" cx="30%" cy="25%" r="85%">
+      <stop offset="0%" stop-color="#101b78"/>
+      <stop offset="60%" stop-color="#0b1460"/>
+      <stop offset="100%" stop-color="#07043c"/>
+    </radialGradient>
+    <linearGradient id="acc" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2bd3fb"/>
+      <stop offset="100%" stop-color="#11a1f3"/>
+    </linearGradient>
+    <linearGradient id="hl" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.60"/>
     </linearGradient>
   </defs>
-  <rect x="6" y="6" width="52" height="52" rx="14" fill="#0B1020" stroke="url(#g)" stroke-width="3"/>
-  <path d="M22 42L42 22" stroke="#EAF2FF" stroke-width="6" stroke-linecap="round"/>
-  <circle cx="46" cy="38" r="2.2" fill="url(#g)"/>
-  <circle cx="50" cy="34" r="1.8" fill="url(#g)"/>
-  <circle cx="42" cy="46" r="1.8" fill="url(#g)"/>
+
+  <rect x="6" y="6" width="52" height="52" rx="14" fill="url(#bg)"/>
+
+  <!-- pixels -->
+  <g fill="url(#acc)" opacity="0.95">
+    <rect x="14" y="22" width="4" height="4" rx="1" opacity="0.35"/>
+    <rect x="20" y="18" width="5" height="5" rx="1" opacity="0.60"/>
+    <rect x="12" y="30" width="3.5" height="3.5" rx="1" opacity="0.22"/>
+    <rect x="18" y="28" width="3.5" height="3.5" rx="1" opacity="0.30"/>
+    <rect x="24" y="26" width="3.5" height="3.5" rx="1" opacity="0.72"/>
+  </g>
+
+  <!-- handset pads -->
+  <rect x="38.5" y="15" width="16" height="8" rx="4" fill="url(#acc)" transform="rotate(-40 46.5 19)"/>
+  <rect x="9.5" y="41" width="16" height="8" rx="4" fill="url(#acc)" transform="rotate(-40 17.5 45)"/>
+
+  <!-- spine -->
+  <path d="M44 18 C38 24, 34 28, 30 32 C26 36, 22 40, 18 44"
+        fill="none" stroke="url(#acc)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M44 18 C38 24, 34 28, 30 32 C26 36, 22 40, 18 44"
+        fill="none" stroke="url(#hl)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>
+
+  <!-- pad highlights -->
+  <rect x="41.5" y="16.6" width="10" height="4.6" rx="2.3" fill="url(#hl)" opacity="0.88" transform="rotate(-40 46.5 19)"/>
+  <rect x="12.5" y="42.6" width="10" height="4.6" rx="2.3" fill="url(#hl)" opacity="0.88" transform="rotate(-40 17.5 45)"/>
 </svg>
