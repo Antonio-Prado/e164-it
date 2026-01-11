@@ -13,6 +13,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://e164.it/" />
   <title>e164.it — E.164 formatter & validator</title>
+  <script defer src="/nav.js?v=3"></script>
 </head>
 <body>
   <div class="wrap">
@@ -20,14 +21,14 @@
       <div class="brand">
         <div class="logo" aria-hidden="true"><img src="/assets/e164-mark.svg?v=2" alt="" width="44" height="44" loading="lazy" /></div>
         <div>
-          <h1>e164.it</h1>
-          <p class="subtitle">E.164 parser / formatter. Outputs useful for VoIP, CRM, and logging.</p>
+          <h1>Docs</h1>
+          <p class="subtitle">API + Batch reference, operational notes, and examples.</p>
         </div>
       </div>
       <nav aria-label="Primary">
-        <a href="/" aria-current="page">Single</a>
+        <a href="/">Single</a>
         <a href="/batch/">Batch CSV</a>
-        <a href="/docs">Docs</a>
+        <a href="/docs/" aria-current="page">Docs</a>
         <a href="/api/">API</a>
         <a href="/privacy/">Privacy</a>
         <a href="/samples/">Samples</a>
@@ -135,6 +136,7 @@
         <span><a href="/batch/">Go to Batch CSV →</a></span>
       </footer>
     </main>
+  </div>
 
 <script>
   const $ = (id) => document.getElementById(id);
@@ -286,8 +288,5 @@
 
   // run once
   parseNow();
-</script>
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  </div>
-</body>
+</script></body>
 </html>
