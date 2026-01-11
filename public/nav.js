@@ -173,4 +173,7 @@
   // 3) opzionale ma utile: corregge anche il titolo del tab se fosse clonato da Docs
   const base = 'e164.it';
   document.title = `${base} — ${current.label}`;
+
+  // 4) rimuove eventuali footer iniettati da layout esterni
+  document.querySelectorAll('footer').forEach((footer) => footer.remove());
 })();
