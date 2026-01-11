@@ -59,6 +59,7 @@
   document.querySelectorAll('footer').forEach((footer) => footer.remove());
   const footer = document.createElement('footer');
   footer.className = 'meta';
+  footer.style.textAlign = 'center';
   footer.innerHTML = 'Another tool brought to you by <a href="https://www.linkedin.com/in/antoniopradoit/" target="_blank" rel="noopener noreferrer">The Internet Floopaloo</a>.';
   document.body.appendChild(footer);
 })();
