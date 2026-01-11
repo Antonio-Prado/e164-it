@@ -1,0 +1,279 @@
+diff --git a/public/admin/index.html b/public/admin/index.html
+index e099e34..331cbfd 100644
+--- a/public/admin/index.html
++++ b/public/admin/index.html
+@@ -24,7 +24,7 @@
+   </style>
+   <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
+   <meta name="theme-color" content="#0b1460" />
+-  <script defer src="/nav.js?v=3"></script>
++  <script defer src="/nav.js?v=5"></script>
+ </head>
+ <body>
+   <div class="wrap">
+diff --git a/public/api/index.html b/public/api/index.html
+index 487db93..8fc7fd9 100644
+--- a/public/api/index.html
++++ b/public/api/index.html
+@@ -13,7 +13,7 @@
+   <title>e164.it — API</title>
+   <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
+   <meta name="theme-color" content="#0b1460" />
+-  <script defer src="/nav.js?v=3"></script>
++  <script defer src="/nav.js?v=5"></script>
+ </head>
+ <body>
+   <div class="wrap">
+diff --git a/public/api-docs/index.html b/public/api-docs/index.html
+index 59c2674..907558c 100644
+--- a/public/api-docs/index.html
++++ b/public/api-docs/index.html
+@@ -18,7 +18,7 @@
+   </style>
+   <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
+   <meta name="theme-color" content="#0b1460" />
+-  <script defer src="/nav.js?v=3"></script>
++  <script defer src="/nav.js?v=5"></script>
+ </head>
+ <body>
+   <div class="wrap">
+diff --git a/public/batch/index.html b/public/batch/index.html
+index f270f20..418cebe 100644
+--- a/public/batch/index.html
++++ b/public/batch/index.html
+@@ -13,7 +13,7 @@
+   <link rel="stylesheet" href="/styles.tech.css">
+   <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
+   <meta name="theme-color" content="#0b1460" />
+-  <script defer src="/nav.js?v=3"></script>
++  <script defer src="/nav.js?v=5"></script>
+ </head>
+ <body>
+   <div class="wrap">
+diff --git a/public/docs/api/index.html b/public/docs/api/index.html
+index 099dc41..34ceee7 100644
+--- a/public/docs/api/index.html
++++ b/public/docs/api/index.html
+@@ -23,7 +23,7 @@
+   </style>
+   <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
+   <meta name="theme-color" content="#0b1460" />
+-  <script defer src="/nav.js?v=4"></script>
++  <script defer src="/nav.js?v=5"></script>
+ </head>
+ <body>
+   <div class="wrap">
+diff --git a/public/docs/batch/index.html b/public/docs/batch/index.html
+index 6bd97a9..904c904 100644
+--- a/public/docs/batch/index.html
++++ b/public/docs/batch/index.html
+@@ -23,7 +23,7 @@
+   </style>
+   <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
+   <meta name="theme-color" content="#0b1460" />
+-  <script defer src="/nav.js?v=4"></script>
++  <script defer src="/nav.js?v=5"></script>
+ </head>
+ <body>
+   <div class="wrap">
+diff --git a/public/docs/faq/index.html b/public/docs/faq/index.html
+index a48f0be..6d2fed2 100644
+--- a/public/docs/faq/index.html
++++ b/public/docs/faq/index.html
+@@ -23,7 +23,7 @@
+   </style>
+   <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
+   <meta name="theme-color" content="#0b1460" />
+-  <script defer src="/nav.js?v=4"></script>
++  <script defer src="/nav.js?v=5"></script>
+ </head>
+ <body>
+   <div class="wrap">
+diff --git a/public/docs/index.html b/public/docs/index.html
+index 8f19094..f8f2c3b 100644
+--- a/public/docs/index.html
++++ b/public/docs/index.html
+@@ -23,7 +23,7 @@
+   </style>
+   <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
+   <meta name="theme-color" content="#0b1460" />
+-  <script defer src="/nav.js?v=3"></script>
++  <script defer src="/nav.js?v=5"></script>
+ </head>
+ <body>
+   <div class="wrap">
+diff --git a/public/docs/security/index.html b/public/docs/security/index.html
+index dd2e735..3457729 100644
+--- a/public/docs/security/index.html
++++ b/public/docs/security/index.html
+@@ -23,7 +23,7 @@
+   </style>
+   <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
+   <meta name="theme-color" content="#0b1460" />
+-  <script defer src="/nav.js?v=4"></script>
++  <script defer src="/nav.js?v=5"></script>
+ </head>
+ <body>
+   <div class="wrap">
+diff --git a/public/index.html b/public/index.html
+index c70b66d..40e70ae 100644
+--- a/public/index.html
++++ b/public/index.html
+@@ -13,7 +13,7 @@
+   <meta property="og:type" content="website" />
+   <meta property="og:url" content="https://e164.it/" />
+   <title>e164.it — E.164 formatter & validator</title>
+-  <script defer src="/nav.js?v=4"></script>
++  <script defer src="/nav.js?v=5"></script>
+ </head>
+ <body>
+   <div class="wrap">
+diff --git a/public/nav.js b/public/nav.js
+index d559f4d..65be66c 100644
+--- a/public/nav.js
++++ b/public/nav.js
+@@ -58,6 +58,118 @@
+     if (subtitleEl && current.subtitle) subtitleEl.textContent = current.subtitle;
+   }
+ 
++  function ensureFooter() {
++    // Remove any legacy in-page footers (older templates kept it inside <main>).
++    document.querySelectorAll('footer.meta').forEach(el => el.remove());
++
++    // Inject minimal footer styles once (also works on pages that don't load styles.tech.css).
++    if (!document.getElementById('e164-footer-style')) {
++      const style = document.createElement('style');
++      style.id = 'e164-footer-style';
++      style.textContent = `
++        :root{--e164-border:rgba(0,0,0,.12);--e164-muted:rgba(0,0,0,.62)}
++        .site-footer{margin-top:28px;padding-top:14px;border-top:1px solid var(--border,var(--e164-border));font-size:12px;line-height:1.35;color:var(--muted,var(--e164-muted))}
++        .site-footer a{color:inherit;text-decoration:none}
++        .site-footer a:hover{text-decoration:underline}
++        .site-footer__row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
++        .site-footer__note{max-width:68ch}
++        .site-footer__sub{margin-top:10px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
++        .site-footer__nav{display:flex;align-items:center;flex-wrap:wrap}
++        .site-footer__nav a + a::before{content:"·";opacity:.75;margin:0 10px}
++        .site-footer__copy{opacity:.9}
++      `.trim();
++      document.head.appendChild(style);
++    }
++
++    const wrap = document.querySelector('.wrap') || document.body;
++    const main = wrap.querySelector('main') || document.querySelector('main');
++
++    // Avoid duplicates on soft navigations or cached DOM.
++    wrap.querySelectorAll('footer.site-footer').forEach(el => el.remove());
++
++    const footerHints = [
++      {
++        prefix: '/docs/batch/',
++        note: 'Batch docs: CSV input, normalization, validation, output fields.',
++        ctaHref: '/batch/',
++        ctaLabel: 'Go to Batch CSV →',
++      },
++      {
++        prefix: '/docs/api/',
++        note: 'API docs: endpoints, request/response schema, status codes.',
++        ctaHref: '/api/',
++        ctaLabel: 'Back to API →',
++      },
++      {
++        prefix: '/docs/',
++        note: 'Docs live at /docs. Same styling as the main UI.',
++        ctaHref: '/',
++        ctaLabel: 'Back to Single →',
++      },
++      {
++        prefix: '/batch/',
++        note: 'Batch: CSV processing is local; API calls happen only when you submit.',
++        ctaHref: '/docs/batch/',
++        ctaLabel: 'Read Batch docs →',
++      },
++      {
++        prefix: '/api/',
++        note: 'API reference (quick). Full docs: /docs/api/.',
++        ctaHref: '/docs/api/',
++        ctaLabel: 'Open API docs →',
++      },
++      {
++        prefix: '/privacy/',
++        note: 'Privacy & security notes for e164.it.',
++        ctaHref: '/docs/security/',
++        ctaLabel: 'Security notes →',
++      },
++      {
++        prefix: '/samples/',
++        note: 'Examples and test vectors (useful for automated checks).',
++        ctaHref: '/docs/faq/',
++        ctaLabel: 'Read FAQ →',
++      },
++      {
++        prefix: '/',
++        note: 'Local-only: API key stored in your browser (localStorage).',
++        ctaHref: '/batch/',
++        ctaLabel: 'Go to Batch CSV →',
++      },
++    ];
++
++    let hint = footerHints[footerHints.length - 1];
++    for (const h of footerHints) {
++      if (pathname === h.prefix || (h.prefix !== '/' && pathname.startsWith(h.prefix))) { hint = h; break; }
++    }
++
++    const year = String(new Date().getFullYear());
++    const footer = document.createElement('footer');
++    footer.className = 'site-footer';
++    footer.setAttribute('role', 'contentinfo');
++    footer.innerHTML = `
++      <div class="site-footer__row">
++        <span class="site-footer__note">${hint.note}</span>
++        <span><a href="${hint.ctaHref}">${hint.ctaLabel}</a></span>
++      </div>
++      <div class="site-footer__sub">
++        <nav class="site-footer__nav" aria-label="Footer">
++          <a href="/docs/">Docs</a>
++          <a href="/api/">API</a>
++          <a href="/privacy/">Privacy</a>
++          <a href="/samples/">Samples</a>
++          <a href="https://github.com/Antonio-Prado/e164-it" target="_blank" rel="noopener noreferrer">GitHub</a>
++        </nav>
++        <span class="site-footer__copy">© ${year} e164.it</span>
++      </div>
++    `.trim();
++
++    if (main && main.parentElement === wrap) wrap.insertBefore(footer, main.nextSibling);
++    else wrap.appendChild(footer);
++  }
++
++  ensureFooter();
++
+   // 3) opzionale ma utile: corregge anche il titolo del tab se fosse clonato da Docs
+   const base = 'e164.it';
+   document.title = `${base} — ${current.label}`;
+diff --git a/public/privacy/index.html b/public/privacy/index.html
+index 3aa7156..5cedd1d 100644
+--- a/public/privacy/index.html
++++ b/public/privacy/index.html
+@@ -13,7 +13,7 @@
+   <title>e164.it — Privacy</title>
+   <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
+   <meta name="theme-color" content="#0b1460" />
+-  <script defer src="/nav.js?v=3"></script>
++  <script defer src="/nav.js?v=5"></script>
+ </head>
+ <body>
+   <div class="wrap">
+diff --git a/public/samples/index.html b/public/samples/index.html
+index 43ee709..4b617e8 100644
+--- a/public/samples/index.html
++++ b/public/samples/index.html
+@@ -13,7 +13,7 @@
+   <title>e164.it — Samples</title>
+   <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
+   <meta name="theme-color" content="#0b1460" />
+-  <script defer src="/nav.js?v=3"></script>
++  <script defer src="/nav.js?v=5"></script>
+ </head>
+ <body>
+   <div class="wrap">
