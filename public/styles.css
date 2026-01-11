@@ -233,3 +233,6 @@ header nav a.active {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+/* Header sizing uniform across pages */
+.top h1 { margin: 0 0 6px; font-size: 28px; line-height: 1.15; }
+.top .subtitle { margin: 0; font-size: 13px; line-height: 1.35; }
