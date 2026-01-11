@@ -8,6 +8,7 @@ RE_BODY = re.compile(r"(<body\b[^>]*>)(.*?)(</body>)", re.I | re.S)
 RE_MAIN = re.compile(r"<main\b[^>]*>.*?</main>", re.I | re.S)
 RE_SCRIPT = re.compile(r"<script\b[^>]*>.*?</script\s*>|<script\b[^>]*/\s*>", re.I | re.S)
 RE_HEADER = re.compile(r"<header\b[^>]*>.*?</header>", re.I | re.S)
+RE_FOOTER = re.compile(r"<footer\b[^>]*>.*?</footer>", re.I | re.S)
 RE_CLASS = re.compile(r'\bclass\s*=\s*"([^"]*)"', re.I)
 
 def merge_body_classes(dst_body_open: str, src_body_open: str) -> str:
@@ -40,8 +41,9 @@ def extract_docs_shell(docs_html: str) -> tuple[str, str, str]:
     prefix = docs_body[:mm.start()]          # wrapper + header/nav fino a <main
     suffix = docs_body[mm.end():]           # dopo </main>
 
-    # nello suffix della Docs teniamo solo struttura (chiusure wrapper/footer), togliamo eventuali script
+    # nello suffix della Docs teniamo solo struttura (chiusure wrapper), togliamo script e footer.
     suffix_struct = RE_SCRIPT.sub("", suffix)
+    suffix_struct = RE_FOOTER.sub("", suffix_struct)
     return docs_body_open, prefix, suffix_struct
 
 def extract_target_payload(target_body: str) -> tuple[str, str]:
