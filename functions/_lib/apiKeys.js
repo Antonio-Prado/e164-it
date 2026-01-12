@@ -29,11 +29,7 @@ export function readApiKeyFromRequest(request, env) {
   const h = request.headers.get("x-api-key");
   if (h && h.trim()) return h.trim();
 
-  if (env?.ALLOW_API_KEY_QUERY !== "true") return null;
-
-  const url = new URL(request.url);
-  const q = url.searchParams.get("api_key");
-  return q && q.trim() ? q.trim() : null;
+  return null;
 }
 
 export function isAdminAuthorized(request, env) {
