@@ -4,7 +4,7 @@ import { enforceRateLimit } from "../_lib/rateLimit.js";
 function withCorsHeaders(headers = {}) {
   return {
     ...headers,
-    "access-control-allow-origin": "*",
+    "access-control-allow-origin": "https://e164.it",
     "access-control-allow-methods": "GET,POST,OPTIONS,PATCH,DELETE",
     "access-control-allow-headers": "content-type, x-api-key, authorization, x-admin-token",
     "access-control-max-age": "86400"
@@ -32,6 +32,11 @@ export async function onRequest(context) {
     return context.next();
   }
 
+  // Allow unauthenticated single-parse requests.
+  if (request.method === "POST" && url.pathname === "/v1/parse") {
+    return context.next();
+  }
+
   
   // Public documentation endpoints (no API key required).
   if (request.method === "GET" && (url.pathname === "/v1/openapi.json" || url.pathname === "/v1/parse" || url.pathname === "/v1/batch/parse")) {
@@ -54,7 +59,7 @@ export async function onRequest(context) {
   }
 
   // API key required for all other /v1/* endpoints
-  const apiKey = readApiKeyFromRequest(request);
+  const apiKey = readApiKeyFromRequest(request, env);
   if (!apiKey) {
     return json(401, { ok: false, error: { code: "missing_api_key", message: "Provide x-api-key header." } });
   }
