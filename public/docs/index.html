@@ -9,21 +9,9 @@
   <meta property="og:description" content="e164.it docs: API, Batch CSV, security, and operational notes." />
   <meta property="og:type" content="website" />
   <title>e164.it — Docs</title>
-  <style>
-    main.doc h2 { margin: 0 0 8px; font-size: 16px; letter-spacing: .1px; }
-    main.doc h3 { margin: 14px 0 8px; font-size: 13px; color: var(--text); }
-    main.doc p, main.doc li { color: var(--muted); font-size: 13px; line-height: 1.45; }
-    main.doc ul { margin: 8px 0 0 18px; }
-    main.doc .k { font-family: var(--mono); font-size: 12px; }
-    main.doc .callout { border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; background: transparent; }
-    main.doc .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    @media (max-width: 860px) { main.doc .cols { grid-template-columns: 1fr; } }
-    main.doc a { text-decoration: underline; text-underline-offset: 3px; }
-    main.doc pre { margin-top: 8px; }
-  </style>
   <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
   <meta name="theme-color" content="#0b1460" />
-  <script defer src="/nav.js?v=3"></script>
+  <script defer src="/nav.js?v=5"></script>
 </head>
 <body>
   <div class="wrap">
@@ -45,25 +33,25 @@
       </nav>
     </header>
 
-    <main class="stack doc">
+    <main class="stack">
       
 <div class="card">
-  <h2>Overview</h2>
-  <p>
+  <div class="small muted">Overview</div>
+  <p class="small muted" style="margin-top:8px;">
     e164.it exposes a minimal HTTP API to normalize phone inputs and produce VoIP / CRM-friendly outputs.
     You can use the web UI (<a href="/">Single</a> / <a href="/batch">Batch</a>) or call the endpoints directly.
   </p>
-  <div class="cols" style="margin-top:12px;">
-    <div class="callout">
-      <h3>API reference</h3>
-      <ul>
+  <div class="stack" style="margin-top:12px;">
+    <div>
+      <div class="small muted">API reference</div>
+      <ul class="small muted" style="margin-top:8px;">
         <li><a href="/docs/api">POST /v1/parse</a> — parse a single number (JSON)</li>
         <li><a href="/docs/batch">POST /v1/batch/parse</a> — upload CSV (multipart)</li>
       </ul>
     </div>
-    <div class="callout">
-      <h3>Operational notes</h3>
-      <ul>
+    <div>
+      <div class="small muted">Operational notes</div>
+      <ul class="small muted" style="margin-top:8px;">
         <li><a href="/docs/security">Security</a> — headers, rate limiting, logging hygiene</li>
         <li><a href="/docs/faq">FAQ</a> — common pitfalls & examples</li>
       </ul>
@@ -72,15 +60,15 @@
 </div>
 
 <div class="card">
-  <h2>Quick start</h2>
+  <div class="small muted">Quick start</div>
 
-  <h3>Single (JSON)</h3>
+  <div class="small muted" style="margin-top:10px;">Single (JSON)</div>
   <pre>curl -s \
   -H "content-type: application/json" \
   -d '{"input":"0039 333 123 4567","default_region":"IT","options":{"format":["e164","rfc3966"],"classify":true,"mask":{"mode":"last4"},"hash":{"enabled":true}}}' \
   https://e164.it/v1/parse</pre>
 
-  <h3>Batch (CSV upload)</h3>
+  <div class="small muted" style="margin-top:10px;">Batch (CSV upload)</div>
   <pre>curl -s \
   -F "file=@sample.csv" \
   -F "phone_column=phone" \
@@ -98,21 +86,16 @@
 </div>
 
 <div class="card">
-  <h2>Authentication & rate limits</h2>
-  <p>
-    If enabled for your project, send your key via <span class="k">x-api-key</span>. The web UI stores it locally in your browser
-    (<span class="k">localStorage</span>) for convenience.
+  <div class="small muted">Authentication & rate limits</div>
+  <p class="small muted" style="margin-top:8px;">
+    If enabled for your project, send your key via <code>x-api-key</code>. The web UI keeps it only in memory for the current session.
   </p>
-  <p>
+  <p class="small muted" style="margin-top:8px;">
     When rate limiting is enabled, responses may include:
-    <span class="k">x-ratelimit-limit</span>, <span class="k">x-ratelimit-remaining</span>, <span class="k">x-ratelimit-reset</span>.
+    <code>x-ratelimit-limit</code>, <code>x-ratelimit-remaining</code>, <code>x-ratelimit-reset</code>.
   </p>
 </div>
 
-      <footer class="meta">
-        <span class="muted small">Docs live at <span class="k">/docs</span>. Same styling as the main UI.</span>
-        <span><a href="/">Back to Single →</a></span>
-      </footer>
     </main>
   </div>
 </body>
