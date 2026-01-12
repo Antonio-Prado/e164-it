@@ -1,0 +1,7 @@
+# Default owner for everything
+* @Antonio-Prado
+
+# Sensitive areas
+/functions/ @Antonio-Prado
+/public/docs/ @Antonio-Prado
+
