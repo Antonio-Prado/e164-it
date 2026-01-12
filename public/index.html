@@ -13,7 +13,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://e164.it/" />
   <title>e164.it — E.164 formatter & validator</title>
-  <script defer src="/nav.js?v=4"></script>
+  <script defer src="/nav.js?v=5"></script>
 </head>
 <body>
   <div class="wrap">
@@ -110,10 +110,6 @@
     </div>
   </div>
 
-        <p class="muted small" id="api">
-        API: <code>POST /v1/parse</code>. <span id="privacy">Privacy: the endpoint can produce <em>masked</em> and <em>hash</em> outputs without storing the raw number.</span>
-      </p>
-
       <details class="details">
         <summary>curl examples <span class="muted">(<span class="kbd">Enter</span> parses)</span></summary>
         <div class="hint">
@@ -131,10 +127,6 @@
         </div>
       </details>
 
-<footer class="meta">
-        <span>Local-only: API key stored in your browser (localStorage).</span>
-        <span><a href="/batch/">Go to Batch CSV →</a></span>
-      </footer>
     </main>
   </div>
 
@@ -156,11 +148,11 @@
   const API_KEY_STORAGE = "e164_api_key";
   const apiKeyEl = $("api_key");
   if (apiKeyEl) {
-    apiKeyEl.value = localStorage.getItem(API_KEY_STORAGE) || "";
+    apiKeyEl.value = sessionStorage.getItem(API_KEY_STORAGE) || "";
     apiKeyEl.addEventListener("input", () => {
       const v = apiKeyEl.value.trim();
-      if (v) localStorage.setItem(API_KEY_STORAGE, v);
-      else localStorage.removeItem(API_KEY_STORAGE);
+      if (v) sessionStorage.setItem(API_KEY_STORAGE, v);
+      else sessionStorage.removeItem(API_KEY_STORAGE);
     });
   }
 
