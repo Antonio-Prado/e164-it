@@ -4,9 +4,25 @@
     { path: '/batch/',   label: 'Batch CSV', subtitle: 'Process CSV batches: normalize, validate, export.' },
     { path: '/docs/',    label: 'Docs',    subtitle: 'API + Batch reference, operational notes, and examples.' },
     { path: '/api/',     label: 'API',     subtitle: 'Endpoints, parameters, and examples.' },
+    { path: '/api-docs/', label: 'API Docs', subtitle: 'Interactive OpenAPI documentation.' },
+    { path: '/admin/',   label: 'Admin',   subtitle: 'Create and manage API keys (admin token required).' },
     { path: '/privacy/', label: 'Privacy', subtitle: 'Privacy & security notes.' },
     { path: '/samples/', label: 'Samples', subtitle: 'Examples and test vectors.' },
   ];
+  const notes = {
+    '/': 'API: <code>POST /v1/parse</code>. Privacy: the endpoint can produce <em>masked</em> and <em>hash</em> outputs without storing the raw number.',
+    '/batch/': 'API: <code>POST /v1/batch/parse</code>. Privacy: supports masking and optional hashing in batch output.',
+    '/docs/': 'Reference docs for API, batch, and operational notes.',
+    '/docs/api/': 'API field reference and response details for v1 endpoints.',
+    '/docs/batch/': 'Batch CSV parameters, output columns, and usage tips.',
+    '/docs/faq/': 'Operational FAQs, rate limiting tips, and CSV format notes.',
+    '/docs/security/': 'Security notes and privacy guidance for phone number data.',
+    '/api/': 'Endpoint reference with examples for the v1 API.',
+    '/api-docs/': 'Interactive OpenAPI documentation for v1.',
+    '/admin/': 'Admin-only: manage API keys and limits.',
+    '/privacy/': 'Privacy notes and data exposure guidance.',
+    '/samples/': 'Sample CSV files for testing batch parsing.',
+  };
   const norm = (p) => {
     if (!p) return '/';
     p = p.split('?')[0].split('#')[0];
@@ -55,6 +71,20 @@
 
   const base = 'e164.it';
   document.title = `${base} — ${current.label}`;
+
+  const main = document.querySelector('main');
+  const existingNote = document.getElementById('page_note');
+  if (existingNote) existingNote.remove();
+  const legacyNote = document.getElementById('api');
+  if (legacyNote) legacyNote.remove();
+  if (main && notes[current.path]) {
+    const note = document.createElement('p');
+    note.className = 'muted small';
+    note.id = 'page_note';
+    note.style.marginTop = '16px';
+    note.innerHTML = notes[current.path];
+    main.appendChild(note);
+  }
 
   document.querySelectorAll('footer').forEach((footer) => footer.remove());
   const footer = document.createElement('footer');
