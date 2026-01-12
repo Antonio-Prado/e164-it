@@ -104,7 +104,7 @@
   const footerInner = document.createElement('span');
   footerInner.style.display = 'inline-flex';
   footerInner.style.alignItems = 'center';
-  footerInner.innerHTML = 'Another tool brought to you by <a href="https://www.linkedin.com/in/antoniopradoit/" target="_blank" rel="noopener noreferrer">The Internet Floopaloo</a> • ';
+  footerInner.innerHTML = 'Another tool brought to you by <a href="https://www.linkedin.com/in/antoniopradoit/" target="_blank" rel="noopener noreferrer">The Internet Floopaloo</a>&nbsp;•&nbsp;';
   const sourceLink = document.createElement('a');
   sourceLink.href = 'https://github.com/Antonio-Prado/e164-it';
   sourceLink.target = '_blank';
@@ -112,17 +112,27 @@
   sourceLink.textContent = 'Source';
   footerInner.appendChild(sourceLink);
 
-  fetch('https://api.github.com/repos/Antonio-Prado/e164-it/commits/main', { cache: 'no-store' })
-    .then((res) => (res.ok ? res.json() : null))
-    .then((data) => {
-      const sha = data?.sha;
-      const htmlUrl = data?.html_url;
-      if (!sha || !htmlUrl) return;
-      const shortSha = sha.slice(0, 7);
-      sourceLink.href = htmlUrl;
-      sourceLink.textContent = `Source @ ${shortSha}`;
-    })
-    .catch(() => {});
+  const commitSha = window.__COMMIT_SHA__ || '';
+  const commitUrl = window.__COMMIT_URL__ || '';
+  const updateSourceLink = (sha, url) => {
+    if (!sha || !url) return false;
+    const shortSha = sha.slice(0, 7);
+    sourceLink.href = url;
+    sourceLink.textContent = `Source @ ${shortSha}`;
+    return true;
+  };
+
+  if (!updateSourceLink(commitSha, commitUrl)) {
+    fetch('https://api.github.com/repos/Antonio-Prado/e164-it/commits/main', { cache: 'no-store' })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        const sha = data?.sha;
+        const htmlUrl = data?.html_url;
+        if (!sha || !htmlUrl) return;
+        updateSourceLink(sha, htmlUrl);
+      })
+      .catch(() => {});
+  }
 
   footer.appendChild(footerInner);
   document.body.appendChild(footer);
