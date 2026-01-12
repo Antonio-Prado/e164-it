@@ -4,7 +4,7 @@ import { enforceRateLimit } from "../_lib/rateLimit.js";
 function withCorsHeaders(headers = {}) {
   return {
     ...headers,
-    "access-control-allow-origin": "*",
+    "access-control-allow-origin": "https://e164.it",
     "access-control-allow-methods": "GET,POST,OPTIONS,PATCH,DELETE",
     "access-control-allow-headers": "content-type, x-api-key, authorization, x-admin-token",
     "access-control-max-age": "86400"
