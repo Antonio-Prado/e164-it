@@ -109,7 +109,7 @@
   sourceLink.href = 'https://github.com/Antonio-Prado/e164-it';
   sourceLink.target = '_blank';
   sourceLink.rel = 'noopener noreferrer';
-  sourceLink.textContent = 'Source';
+  sourceLink.textContent = 'Source @ …';
   footerInner.appendChild(sourceLink);
 
   const commitSha = window.__COMMIT_SHA__ || '';
