@@ -72,6 +72,25 @@
   const base = 'e164.it';
   document.title = `${base} — ${current.label}`;
 
+  const main = document.querySelector('main');
+  const existingNote = document.getElementById('page_note');
+  if (existingNote) existingNote.remove();
+  const legacyNote = document.getElementById('api');
+  if (legacyNote) legacyNote.remove();
+  if (main && notes[current.path]) {
+    const note = document.createElement('p');
+    note.className = 'muted small';
+    note.id = 'page_note';
+    note.style.margin = '16px 0 0';
+    note.innerHTML = notes[current.path];
+    const firstChild = main.firstElementChild;
+    if (firstChild) {
+      main.insertBefore(note, firstChild);
+    } else {
+      main.appendChild(note);
+    }
+  }
+
   document.querySelectorAll('footer').forEach((footer) => footer.remove());
   const footer = document.createElement('footer');
   footer.className = 'meta';
