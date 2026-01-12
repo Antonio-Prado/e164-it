@@ -24,14 +24,12 @@ export async function findApiKeyByHash(env, keyHash) {
   return row || null;
 }
 
-export function readApiKeyFromRequest(request) {
-  // Prefer header; allow query param for quick debugging (optional).
+export function readApiKeyFromRequest(request, env) {
+  // Prefer header; allow query param only when explicitly enabled.
   const h = request.headers.get("x-api-key");
   if (h && h.trim()) return h.trim();
 
-  const url = new URL(request.url);
-  const q = url.searchParams.get("api_key");
-  return q && q.trim() ? q.trim() : null;
+  return null;
 }
 
 export function isAdminAuthorized(request, env) {
