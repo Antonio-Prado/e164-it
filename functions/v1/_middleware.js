@@ -32,6 +32,11 @@ export async function onRequest(context) {
     return context.next();
   }
 
+  // Allow unauthenticated single-parse requests.
+  if (request.method === "POST" && url.pathname === "/v1/parse") {
+    return context.next();
+  }
+
   
   // Public documentation endpoints (no API key required).
   if (request.method === "GET" && (url.pathname === "/v1/openapi.json" || url.pathname === "/v1/parse" || url.pathname === "/v1/batch/parse")) {
