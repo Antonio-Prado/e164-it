@@ -18,7 +18,7 @@
   </style>
   <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
   <meta name="theme-color" content="#0b1460" />
-  <script defer src="/nav.js?v=3"></script>
+  <script defer src="/nav.js?v=5"></script>
 </head>
 <body>
   <div class="wrap">
@@ -57,7 +57,7 @@
       <div style="flex: 1; min-width: 280px;">
         <label for="api_key">API key (optional)</label>
         <input id="api_key" placeholder="e164_..." autocomplete="off" style="width: 100%;" />
-        <div class="muted" style="font-size:12px; margin-top:6px;">Stored locally in your browser (localStorage).</div>
+        <div class="muted" style="font-size:12px; margin-top:6px;">Stored locally in your browser (sessionStorage).</div>
       </div>
       <div style="min-width: 180px;">
         <label>&nbsp;</label>
@@ -70,39 +70,5 @@
 </main>
   </div>
 
-<script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script><script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script><script>
-    const STORAGE_KEY = "e164_api_key";
-    const apiKeyEl = document.getElementById("api_key");
-    const clearBtn = document.getElementById("clear");
-
-    apiKeyEl.value = localStorage.getItem(STORAGE_KEY) || "";
-    apiKeyEl.addEventListener("input", () => {
-      const v = apiKeyEl.value.trim();
-      if (v) localStorage.setItem(STORAGE_KEY, v);
-      else localStorage.removeItem(STORAGE_KEY);
-    });
-    clearBtn.addEventListener("click", () => {
-      apiKeyEl.value = "";
-      localStorage.removeItem(STORAGE_KEY);
-    });
-
-    window.ui = SwaggerUIBundle({
-      url: "/v1/openapi.json",
-      dom_id: "#swagger-ui",
-      deepLinking: true,
-      presets: [
-        SwaggerUIBundle.presets.apis,
-        SwaggerUIStandalonePreset,
-      ],
-      layout: "StandaloneLayout",
-      requestInterceptor: (req) => {
-        const key = (apiKeyEl.value || "").trim();
-        if (key) {
-          req.headers = req.headers || {};
-          req.headers["x-api-key"] = key;
-        }
-        return req;
-      },
-    });
-  </script></body>
+<script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script><script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script><script src="/js/api-docs.js?v=1"></script></body>
 </html>
