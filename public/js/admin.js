@@ -1,5 +1,4 @@
 const $ = (id) => document.getElementById(id);
-const TOKEN_KEY = "e164_admin_token";
 
 function setStatus(t) {
   $("status").textContent = t;
@@ -119,12 +118,10 @@ async function patchKey(id, patch) {
 
 $("save_token").addEventListener("click", () => {
   const t = $("admin_token").value.trim();
-  if (t) sessionStorage.setItem(TOKEN_KEY, t);
-  setStatus("token saved");
+  if (t) setStatus("token ready");
 });
 
 $("clear_token").addEventListener("click", () => {
-  sessionStorage.removeItem(TOKEN_KEY);
   $("admin_token").value = "";
   setStatus("token cleared");
 });
@@ -170,5 +167,4 @@ $("rows").addEventListener("click", async (e) => {
   }
 });
 
-$("admin_token").value = sessionStorage.getItem(TOKEN_KEY) || "";
 refresh().catch(() => setStatus("idle"));

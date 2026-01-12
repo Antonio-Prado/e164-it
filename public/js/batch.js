@@ -1,15 +1,6 @@
 const $ = (id) => document.getElementById(id);
 
-const API_KEY_STORAGE = "e164_api_key";
 const apiKeyEl = $("api_key");
-if (apiKeyEl) {
-  apiKeyEl.value = sessionStorage.getItem(API_KEY_STORAGE) || "";
-  apiKeyEl.addEventListener("input", () => {
-    const v = apiKeyEl.value.trim();
-    if (v) sessionStorage.setItem(API_KEY_STORAGE, v);
-    else sessionStorage.removeItem(API_KEY_STORAGE);
-  });
-}
 
 function updateRateLimit(res) {
   const el = $("rl");
