@@ -4,8 +4,8 @@ pages_build_output_dir = "public"
 compatibility_date = "2026-01-10"
 
 [env.production.vars]
-HASH_SECRET = "anbfgcer6yh438d8S7V6h19Z8K5M9S6g"
 NODE_VERSION = "22"
+# NOTE: store HASH_SECRET via `wrangler secret put HASH_SECRET` (do not hard-code).
 
 # Pages note: if you override any non-inheritable keys in env.production (e.g. vars),
 # you must also define the non-inheritable bindings you rely on (e.g. D1/KV) in env.production.
