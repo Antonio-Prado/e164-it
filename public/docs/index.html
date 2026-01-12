@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="e164.it documentation: API, Batch CSV, privacy & security notes." />
-  <link rel="stylesheet" href="/styles.tech.css">
+  <link rel="stylesheet" href="/styles.css">
 <meta property="og:title" content="e164.it — Docs" />
   <meta property="og:description" content="e164.it docs: API, Batch CSV, security, and operational notes." />
   <meta property="og:type" content="website" />
@@ -23,7 +23,7 @@
   </style>
   <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
   <meta name="theme-color" content="#0b1460" />
-  <script defer src="/nav.js?v=3"></script>
+  <script defer src="/nav.js?v=5"></script>
 </head>
 <body>
   <div class="wrap">
@@ -101,7 +101,7 @@
   <h2>Authentication & rate limits</h2>
   <p>
     If enabled for your project, send your key via <span class="k">x-api-key</span>. The web UI stores it locally in your browser
-    (<span class="k">localStorage</span>) for convenience.
+    (<span class="k">sessionStorage</span>) for convenience.
   </p>
   <p>
     When rate limiting is enabled, responses may include:
@@ -109,10 +109,6 @@
   </p>
 </div>
 
-      <footer class="meta">
-        <span class="muted small">Docs live at <span class="k">/docs</span>. Same styling as the main UI.</span>
-        <span><a href="/">Back to Single →</a></span>
-      </footer>
     </main>
   </div>
 </body>
