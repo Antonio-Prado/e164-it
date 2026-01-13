@@ -1,9 +1,0 @@
-id,name,phone,note,e164,valid,possible,country,type,masked,hash,error
-1,Alice,0039 333 123 4567,IT messy,+393331234567,true,true,IT,MOBILE,+********4567,h_e721944807a2dbee93ddae496f7a43cc5b5f5e0c6bbdc8737f82e45a46636862,
-2,Bob,+39 06 6982,IT Rome landline-ish,+39066982,true,true,VA,FIXED_LINE,+****6982,h_f31c1832d084ad2affe7497a7c117f17a02e420d900f054c0695dfbaae6b6b61,
-3,Charlie,3331234567,Missing country code,+393331234567,true,true,IT,MOBILE,+********4567,h_e721944807a2dbee93ddae496f7a43cc5b5f5e0c6bbdc8737f82e45a46636862,
-4,Diana,(415) 555-2671,US formatted,+394155552671,false,true,IT,,+********2671,h_3324cc077fd6260c874508fa81b5a10993aef2b4c955251c4cfcf0c5015e5272,
-5,Eve,not-a-number,Invalid,,false,false,,,,,parse_failed
-6,Frank,,Empty,,false,false,,,,,empty_phone
-7,Grace,+44 20 7946 0958,UK,+442079460958,true,true,GB,FIXED_LINE,+********0958,h_115fd14649012bf98dcee07bd5420440378068ba23bb00fb2659fe378fb08fa9,
-8,Heidi,0033 1 42 68 53 00,FR,+33142685300,true,true,FR,FIXED_LINE,+*******5300,h_93a89ad9a757d0f2c0a225f26604fb8170beb9d913d263f6492508f074714fcb,
