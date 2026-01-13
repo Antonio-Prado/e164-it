@@ -1,27 +1,18 @@
 const apiKeyEl = document.getElementById("api_key");
 const clearBtn = document.getElementById("clear");
 
-const API_KEY_STORAGE = "e164_api_key";
-
-try {
-  const saved = sessionStorage.getItem(API_KEY_STORAGE);
-  if (saved && apiKeyEl) apiKeyEl.value = saved;
-} catch {}
-
 if (apiKeyEl) {
   apiKeyEl.addEventListener("input", () => {
+    // Do not persist the API key in browser storage to avoid clear-text storage of sensitive data.
     const v = (apiKeyEl.value || "").trim();
-    try {
-      if (v) sessionStorage.setItem(API_KEY_STORAGE, v);
-      else sessionStorage.removeItem(API_KEY_STORAGE);
-    } catch {}
+    // The current value in the input will be used directly by the request interceptor below.
   });
 }
 
-
 clearBtn.addEventListener("click", () => {
-  apiKeyEl.value = "";
-  try { sessionStorage.removeItem(API_KEY_STORAGE); } catch {}
+  if (apiKeyEl) {
+    apiKeyEl.value = "";
+  }
 });
 
 window.ui = SwaggerUIBundle({
@@ -31,7 +22,7 @@ window.ui = SwaggerUIBundle({
   presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
   layout: "StandaloneLayout",
   requestInterceptor: (req) => {
-    const key = (apiKeyEl.value || "").trim();
+    const key = (apiKeyEl && apiKeyEl.value || "").trim();
     if (key) {
       req.headers = req.headers || {};
       req.headers["x-api-key"] = key;
