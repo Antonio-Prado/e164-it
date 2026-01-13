@@ -89,6 +89,22 @@ const runChecks = async (env) => {
 };
 
 export default {
+  async fetch(request, env) {
+    try {
+      await runChecks(env);
+      return new Response(JSON.stringify({ ok: true }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(message);
+      return new Response(JSON.stringify({ ok: false, error: message }), {
+        status: 500,
+        headers: { "content-type": "application/json" },
+      });
+    }
+  },
   async scheduled(event, env, ctx) {
     ctx.waitUntil(runChecks(env));
   },
