@@ -1,0 +1,191 @@
+diff --git a/CONTRIBUTING.md b/CONTRIBUTING.md
+new file mode 100644
+index 0000000..88ca0d8
+--- /dev/null
++++ b/CONTRIBUTING.md
+@@ -0,0 +1,185 @@
++# Contributing to e164.it
++
++Thanks for your interest in contributing to **e164.it** — an E.164 phone number parsing & CSV batch normalization toolkit (UI + API).
++
++This repository aims to stay **small, readable, and operationally predictable**: minimal dependencies, clear behavior, and stable outputs.
++
++---
++
++## What you can contribute
++
++- **Bug reports** (UI, API, batch parsing, edge cases)
++- **Docs improvements** (examples, wording, clarifications)
++- **UI/UX improvements** (copy, tooltips, accessibility)
++- **API improvements** (validation, error handling, OpenAPI accuracy)
++- **Security & privacy improvements** (see Security below)
++
++If you plan a larger change, open an issue first to align on approach.
++
++---
++
++## Ground rules (project principles)
++
++1. **Predictable outputs** over cleverness.
++2. **Minimal dependencies** (avoid adding frameworks/build systems unless truly necessary).
++3. **Privacy-aware defaults** (masking/hashing must remain safe and explicit).
++4. **Docs and UI must match behavior** (especially auth/rate-limit semantics).
++
++---
++
++## Development setup
++
++### Requirements
++
++- **Node.js 22** (see `.nvmrc` / `.node-version`)
++- npm
++
++### Install
++
++```bash
++npm ci
++```
++
++### Build metadata
++
++This repo generates a small `public/build-meta.js` file used by the UI (commit SHA/link):
++
++```bash
++npm run build
++```
++
++---
++
++## Running locally
++
++### UI-only (static preview)
++
++If you only work on `public/` pages (HTML/CSS/JS), any static server is fine:
++
++```bash
++python -m http.server --directory public 8080
++# open http://localhost:8080
++```
++
++Note: this will not run `/v1/*` API endpoints locally.
++
++### Full stack (UI + Cloudflare Pages Functions)
++
++This project uses **Cloudflare Pages Functions** (`functions/`) and Wrangler (`wrangler.toml`).
++
++A typical local dev command is:
++
++```bash
++npx wrangler pages dev public
++```
++
++Depending on what you touch, you may need bindings:
++- **D1** database binding: `DB`
++- **KV** namespace binding: `RL`
++
++If you don’t have Cloudflare credentials/bindings available, you can still contribute UI and docs changes without running the full stack locally.
++
++---
++
++## Configuration notes (secrets & bindings)
++
++### Secrets
++
++Never commit secrets.
++
++- `HASH_SECRET` is required to enable stable HMAC hashing.
++- Admin endpoints require an admin token (see `.github/SECURITY.md` for reporting; do not post tokens in issues).
++
++In production, store secrets with Wrangler, e.g.:
++
++```bash
++wrangler secret put HASH_SECRET
++```
++
++### Database migrations (D1)
++
++Schema migrations live in `migrations/`.
++
++When you introduce schema changes:
++1. Add a new migration file with the next number (e.g. `0002_...sql`)
++2. Keep migrations **idempotent** where possible (`IF NOT EXISTS`, etc.)
++3. Document behavior changes in the PR description
++
++---
++
++## Testing / sanity checks
++
++Automated tests are intentionally minimal.
++
++Before opening a PR, please run:
++
++```bash
++npm ci
++node -e "import('./functions/v1/parse.js'); import('./functions/v1/batch/parse.js'); console.log('ok')"
++```
++
++Optional: if you have access to a deployed instance and credentials, you can run the smoke script:
++
++```bash
++BASE_URL="https://e164.it" API_KEY="e164_..." ADMIN_TOKEN="..." bash scripts/test_api.sh
++```
++
++Do **not** paste real keys/tokens in issues or PRs.
++
++---
++
++## Code style
++
++- Follow `.editorconfig` (2-space indent, LF, final newline).
++- Prefer **plain, readable JavaScript** (ESM).
++- Keep the UI vanilla: small JS files, no heavy front-end frameworks.
++- Avoid changing output field names unless absolutely necessary (compatibility).
++
++---
++
++## Documentation rules
++
++If you change behavior, update documentation in the same PR:
++
++- `public/docs/`
++- `public/api/`
++- `public/api-docs/` (Swagger UI)
++- `functions/v1/openapi.json.js` (OpenAPI generator)
++
++Important: the OpenAPI spec, docs pages, and middleware behavior must remain consistent.
++
++---
++
++## Submitting a pull request
++
++1. Create a branch from `main`.
++2. Keep PRs focused (one feature/fix per PR where possible).
++3. Include:
++   - What changed and why
++   - Screenshots for UI changes (before/after)
++   - Any new limits/behavior changes
++4. Ensure checks pass (CI imports key modules).
++
++### Commit messages
++
++Use concise, imperative messages, e.g.:
++
++- `Fix batch CSV delimiter autodetect`
++- `Docs: clarify hosted API key requirement`
++- `UI: improve API key tooltip and link`
++
++---
++
++## Security
++
++Please **do not open public issues** for security problems.
++
++Use GitHub’s **Private Vulnerability Reporting** or contact the maintainer as described in:
++
++- `.github/SECURITY.md`
++
++---
++
++## License
++
++By contributing, you agree that your contributions are licensed under the repository’s **ISC License** (see `LICENSE`).

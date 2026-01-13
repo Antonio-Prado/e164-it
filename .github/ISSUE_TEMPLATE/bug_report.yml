@@ -1,0 +1,139 @@
+name: Bug report
+description: Report a problem with the UI, API, docs, or batch CSV normalization.
+title: "Bug: "
+labels: ["bug"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug.
+
+        **Security note:** do not paste API keys, admin tokens, or private data.
+        If you think this is a security issue, please follow the security policy instead (see SECURITY.md).
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      description: Where does the issue happen?
+      options:
+        - Web UI (Single)
+        - Web UI (Batch CSV)
+        - API (/v1/parse)
+        - API (/v1/batch/parse)
+        - OpenAPI / API docs
+        - Documentation pages
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is the bug?
+      placeholder: Clear and concise description of what’s wrong.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: How can we reproduce the issue?
+      placeholder: |
+        1. Go to ...
+        2. Click ...
+        3. Submit ...
+        4. Observe ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      placeholder: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      placeholder: What happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: request
+    attributes:
+      label: Request / response samples (redact!)
+      description: |
+        If relevant, paste minimal request/response snippets.
+        **Redact** phone numbers, API keys, tokens, personal data.
+      placeholder: |
+        Request:
+        - method:
+        - endpoint:
+        - headers: (redacted)
+        - body:
+
+        Response:
+        - status:
+        - headers:
+        - body:
+      render: text
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Console logs / server logs (optional)
+      description: Paste any relevant logs (redact secrets).
+      render: text
+
+  - type: input
+    id: version
+    attributes:
+      label: Version / commit (if known)
+      description: If you can, include the build meta (commit SHA) shown in the footer or UI.
+      placeholder: e.g. 1a2b3c4 (or "unknown")
+
+  - type: dropdown
+    id: deployment
+    attributes:
+      label: Where are you running it?
+      options:
+        - Hosted instance (e164.it)
+        - Self-hosted
+        - Local dev
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Provide client environment details.
+      placeholder: |
+        - OS:
+        - Browser (if UI):
+        - Node.js (if dev):
+        - Wrangler (if dev):
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I have redacted secrets and personal data.
+          required: true
+        - label: I have searched existing issues and didn’t find a duplicate.
+          required: true
+        - label: I can provide additional details if requested.
+          required: false
+
