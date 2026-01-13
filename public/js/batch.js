@@ -2,6 +2,24 @@ const $ = (id) => document.getElementById(id);
 
 const apiKeyEl = $("api_key");
 
+const API_KEY_STORAGE = "e164_api_key";
+
+try {
+  const saved = sessionStorage.getItem(API_KEY_STORAGE);
+  if (saved && apiKeyEl) apiKeyEl.value = saved;
+} catch {}
+
+if (apiKeyEl) {
+  apiKeyEl.addEventListener("input", () => {
+    const v = (apiKeyEl.value || "").trim();
+    try {
+      if (v) sessionStorage.setItem(API_KEY_STORAGE, v);
+      else sessionStorage.removeItem(API_KEY_STORAGE);
+    } catch {}
+  });
+}
+
+
 function updateRateLimit(res) {
   const el = $("rl");
   if (!el || !res) return;

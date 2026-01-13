@@ -61,6 +61,12 @@
     Provide <span class="k">default_region</span> (e.g. IT/US/GB). The parser can then interpret national formats.
   </p>
 
+  <h3>Do I need an API key?</h3>
+  <p>
+    When auth is enabled, send <span class="k">x-api-key</span>. The hosted <span class="k">https://e164.it</span> instance
+    may require an API key for Batch requests. See <a href="/docs/#getting-an-api-key">Getting an API key</a>.
+  </p>
+
   <h3>Batch returns a CSV. How do I know what columns were added?</h3>
   <p>
     Look at the header row of the downloaded CSV: it contains your original columns + appended derived columns.

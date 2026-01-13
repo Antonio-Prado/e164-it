@@ -69,8 +69,10 @@
           </div>
 
           <div>
-            <label for="api_key">API key (optional)<span class="tip" tabindex="0" data-tip="Optional API key for authenticated requests.">?</span></label>
+            <label for="api_key">API key (required for hosted Batch)<span class="tip" tabindex="0" data-tip="Required for Batch on the hosted service. Sent as x-api-key.">?</span></label>
             <input id="api_key" placeholder="e164_..." autocomplete="off" />
+            <div class="muted small" style="margin-top:6px;">Need a key? <a href="/docs/#getting-an-api-key">Get an API key</a> (hosted) or self-host your own instance.</div>
+            <div class="muted small" style="margin-top:6px;">Stored locally in your browser (<code>sessionStorage</code>, cleared when you close the tab).</div>
             <div class="muted small" id="rl" style="margin-top:6px;">Rate limit: —</div>
             <div class="muted small" id="batch_stats">Batch stats: —</div>
           </div>

@@ -49,6 +49,15 @@
     <main class="stack doc">
       
 <div class="card">
+  <div class="callout">
+    <div class="small muted">Authentication</div>
+    <p style="margin-top:8px;">The hosted service may require an API key for Batch requests.
+      Send it as <span class="k">x-api-key</span>. See <a href="/docs/#getting-an-api-key">Getting an API key</a>.
+    </p>
+  </div>
+</div>
+
+<div class="card">
   <h2>POST /v1/batch/parse</h2>
   <p>
     Upload a CSV via <span class="k">multipart/form-data</span>. Response body is a CSV with extra columns appended.

@@ -1,0 +1,270 @@
+diff --git a/public/api-docs/index.html b/public/api-docs/index.html
+index d6ffcd0..874c9f7 100644
+--- a/public/api-docs/index.html
++++ b/public/api-docs/index.html
+@@ -109,9 +109,10 @@
+   <div class="card">
+     <div class="row">
+       <div style="flex: 1; min-width: 280px;">
+-        <label for="api_key">API key (optional)<span class="tip" tabindex="0" data-tip="Optional API key for authenticated requests.">?</span></label>
++        <label for="api_key">API key (optional)<span class="tip" tabindex="0" data-tip="Optional. When auth is enabled, sent as x-api-key.">?</span></label>
+         <input id="api_key" placeholder="e164_..." autocomplete="off" style="width: 100%;" />
+         <div class="muted" style="font-size:12px; margin-top:6px;">Stored locally in your browser (sessionStorage).</div>
++        <div class="muted" style="font-size:12px; margin-top:6px;">Need a hosted key for Batch? See <a href="/docs/#getting-an-api-key">Docs</a>.</div>
+       </div>
+       <div style="min-width: 180px;">
+         <label>&nbsp;</label>
+diff --git a/public/api/index.html b/public/api/index.html
+index 71e13d1..0c93352 100644
+--- a/public/api/index.html
++++ b/public/api/index.html
+@@ -40,8 +40,9 @@
+       <div class="card">
+         <div class="small muted">Authentication</div>
+         <p class="small muted" style="margin-top:8px;">
+-          If enabled for your project, send an API key via <code>x-api-key</code>.
+-          The web UI stores the key locally in your browser (<code>sessionStorage</code>).
++          When auth is enabled, send an API key via <code>x-api-key</code>.
++          The web UI stores the key in <code>sessionStorage</code> for the current tab session.
++          See <a href="/docs/#getting-an-api-key">Docs</a> for how to obtain a hosted key.
+         </p>
+         <pre>curl -s \
+   -H "x-api-key: e164_..." \
+diff --git a/public/batch/index.html b/public/batch/index.html
+index e82f2fb..62bc84a 100644
+--- a/public/batch/index.html
++++ b/public/batch/index.html
+@@ -69,8 +69,10 @@
+           </div>
+ 
+           <div>
+-            <label for="api_key">API key (optional)<span class="tip" tabindex="0" data-tip="Optional API key for authenticated requests.">?</span></label>
++            <label for="api_key">API key (required for hosted Batch)<span class="tip" tabindex="0" data-tip="Required for Batch on the hosted service. Sent as x-api-key.">?</span></label>
+             <input id="api_key" placeholder="e164_..." autocomplete="off" />
++            <div class="muted small" style="margin-top:6px;">Need a key? <a href="/docs/#getting-an-api-key">Get an API key</a> (hosted) or self-host your own instance.</div>
++            <div class="muted small" style="margin-top:6px;">Stored locally in your browser (<code>sessionStorage</code>, cleared when you close the tab).</div>
+             <div class="muted small" id="rl" style="margin-top:6px;">Rate limit: —</div>
+             <div class="muted small" id="batch_stats">Batch stats: —</div>
+           </div>
+diff --git a/public/docs/api/index.html b/public/docs/api/index.html
+index 1f04627..f123eb8 100644
+--- a/public/docs/api/index.html
++++ b/public/docs/api/index.html
+@@ -48,6 +48,15 @@
+ 
+     <main class="stack doc">
+       
++<div class="card">
++  <div class="callout">
++    <div class="small muted">Authentication</div>
++    <p style="margin-top:8px;">When enabled, include <span class="k">x-api-key</span>.
++      For hosted keys and Batch access, see <a href="/docs/#getting-an-api-key">Getting an API key</a>.
++    </p>
++  </div>
++</div>
++
+ <div class="card">
+   <h2>POST /v1/parse</h2>
+   <p>Parse a single phone number. Returns a JSON envelope with <span class="k">ok</span> and a <span class="k">result</span> object.</p>
+diff --git a/public/docs/batch/index.html b/public/docs/batch/index.html
+index 5f50893..84c6b3d 100644
+--- a/public/docs/batch/index.html
++++ b/public/docs/batch/index.html
+@@ -48,6 +48,15 @@
+ 
+     <main class="stack doc">
+       
++<div class="card">
++  <div class="callout">
++    <div class="small muted">Authentication</div>
++    <p style="margin-top:8px;">The hosted service may require an API key for Batch requests.
++      Send it as <span class="k">x-api-key</span>. See <a href="/docs/#getting-an-api-key">Getting an API key</a>.
++    </p>
++  </div>
++</div>
++
+ <div class="card">
+   <h2>POST /v1/batch/parse</h2>
+   <p>
+diff --git a/public/docs/faq/index.html b/public/docs/faq/index.html
+index c584c16..44dd7f3 100644
+--- a/public/docs/faq/index.html
++++ b/public/docs/faq/index.html
+@@ -61,6 +61,12 @@
+     Provide <span class="k">default_region</span> (e.g. IT/US/GB). The parser can then interpret national formats.
+   </p>
+ 
++  <h3>Do I need an API key?</h3>
++  <p>
++    When auth is enabled, send <span class="k">x-api-key</span>. The hosted <span class="k">https://e164.it</span> instance
++    may require an API key for Batch requests. See <a href="/docs/#getting-an-api-key">Getting an API key</a>.
++  </p>
++
+   <h3>Batch returns a CSV. How do I know what columns were added?</h3>
+   <p>
+     Look at the header row of the downloaded CSV: it contains your original columns + appended derived columns.
+diff --git a/public/docs/index.html b/public/docs/index.html
+index 7ea8cdc..c8cb935 100644
+--- a/public/docs/index.html
++++ b/public/docs/index.html
+@@ -87,13 +87,25 @@
+ </div>
+ 
+ <div class="card">
+-  <div class="small muted">Authentication & rate limits</div>
++  <div class="small muted" id="getting-an-api-key">Authentication & rate limits</div>
+   <p class="small muted" style="margin-top:8px;">
+-    If enabled for your project, send your key via <code>x-api-key</code>. The web UI keeps it only in memory for the current session.
++    When auth is enabled, send your key via <code>x-api-key</code>. The web UI stores it in <code>sessionStorage</code>
++    for the current tab session (cleared when you close the tab).
+   </p>
+   <p class="small muted" style="margin-top:8px;">
+-    When rate limiting is enabled, responses may include:
+-    <code>x-ratelimit-limit</code>, <code>x-ratelimit-remaining</code>, <code>x-ratelimit-reset</code>.
++    The hosted <code>https://e164.it</code> instance may require an API key for Batch requests.
++  </p>
++  <div class="small muted" style="margin-top:10px;">Getting an API key</div>
++  <p class="small muted" style="margin-top:8px;">
++    Hosted service: API keys are issued by the operator. To request a key, open a GitHub issue
++    (<a href="https://github.com/Antonio-Prado/e164-it/issues/new" target="_blank" rel="noopener noreferrer">new issue</a>)
++    or contact the maintainer via <a href="https://www.linkedin.com/in/antoniopradoit/" target="_blank" rel="noopener noreferrer">LinkedIn</a>.
++  </p>
++  <p class="small muted" style="margin-top:8px;">
++    Self-hosted: deploy your own instance and manage keys via the admin endpoints.
++  </p>
++  <p class="small muted" style="margin-top:8px;">
++    When rate limiting is enabled, responses may include: <code>x-ratelimit-limit</code>, <code>x-ratelimit-remaining</code>, <code>x-ratelimit-reset</code>.
+   </p>
+ </div>
+ 
+diff --git a/public/docs/security/index.html b/public/docs/security/index.html
+index e46ced5..f81a8b5 100644
+--- a/public/docs/security/index.html
++++ b/public/docs/security/index.html
+@@ -67,7 +67,7 @@
+ <div class="card">
+   <h2>Client-side storage (web UI)</h2>
+   <p>
+-    The UI stores the API key in <span class="k">sessionStorage</span> so you don’t have to retype it. Clear site data to remove it.
++    The UI stores the API key in <span class="k">sessionStorage</span> for the current tab session, so you don’t have to retype it. Clear site data to remove it.
+   </p>
+ </div>
+ 
+diff --git a/public/index.html b/public/index.html
+index 5ed4f90..3c73e9f 100644
+--- a/public/index.html
++++ b/public/index.html
+@@ -75,8 +75,9 @@
+     </div>
+ 
+     <div style="margin-top:12px;">
+-      <label for="api_key">API key (optional)<span class="tip" tabindex="0" data-tip="Optional API key for authenticated requests.">?</span></label>
++      <label for="api_key">API key (optional)<span class="tip" tabindex="0" data-tip="Optional. When auth is enabled, sent as x-api-key.">?</span></label>
+       <input id="api_key" placeholder="e164_..." autocomplete="off" />
++      <div class="small muted" style="margin-top:6px;">Stored locally in your browser (<code>sessionStorage</code>, cleared when you close the tab).</div>
+       <div class="small muted" id="rl" style="margin-top:6px;">Rate limit: —</div>
+     </div>
+ 
+diff --git a/public/js/api-docs.js b/public/js/api-docs.js
+index d8bdd54..3441348 100644
+--- a/public/js/api-docs.js
++++ b/public/js/api-docs.js
+@@ -1,8 +1,27 @@
+ const apiKeyEl = document.getElementById("api_key");
+ const clearBtn = document.getElementById("clear");
+ 
++const API_KEY_STORAGE = "e164_api_key";
++
++try {
++  const saved = sessionStorage.getItem(API_KEY_STORAGE);
++  if (saved && apiKeyEl) apiKeyEl.value = saved;
++} catch {}
++
++if (apiKeyEl) {
++  apiKeyEl.addEventListener("input", () => {
++    const v = (apiKeyEl.value || "").trim();
++    try {
++      if (v) sessionStorage.setItem(API_KEY_STORAGE, v);
++      else sessionStorage.removeItem(API_KEY_STORAGE);
++    } catch {}
++  });
++}
++
++
+ clearBtn.addEventListener("click", () => {
+   apiKeyEl.value = "";
++  try { sessionStorage.removeItem(API_KEY_STORAGE); } catch {}
+ });
+ 
+ window.ui = SwaggerUIBundle({
+diff --git a/public/js/batch.js b/public/js/batch.js
+index d2959bd..6a5d347 100644
+--- a/public/js/batch.js
++++ b/public/js/batch.js
+@@ -2,6 +2,24 @@ const $ = (id) => document.getElementById(id);
+ 
+ const apiKeyEl = $("api_key");
+ 
++const API_KEY_STORAGE = "e164_api_key";
++
++try {
++  const saved = sessionStorage.getItem(API_KEY_STORAGE);
++  if (saved && apiKeyEl) apiKeyEl.value = saved;
++} catch {}
++
++if (apiKeyEl) {
++  apiKeyEl.addEventListener("input", () => {
++    const v = (apiKeyEl.value || "").trim();
++    try {
++      if (v) sessionStorage.setItem(API_KEY_STORAGE, v);
++      else sessionStorage.removeItem(API_KEY_STORAGE);
++    } catch {}
++  });
++}
++
++
+ function updateRateLimit(res) {
+   const el = $("rl");
+   if (!el || !res) return;
+diff --git a/public/js/single.js b/public/js/single.js
+index 2d0b54c..26bb346 100644
+--- a/public/js/single.js
++++ b/public/js/single.js
+@@ -14,6 +14,24 @@ function showToast(msg) {
+ 
+ const apiKeyEl = $("api_key");
+ 
++const API_KEY_STORAGE = "e164_api_key";
++
++try {
++  const saved = sessionStorage.getItem(API_KEY_STORAGE);
++  if (saved && apiKeyEl) apiKeyEl.value = saved;
++} catch {}
++
++if (apiKeyEl) {
++  apiKeyEl.addEventListener("input", () => {
++    const v = (apiKeyEl.value || "").trim();
++    try {
++      if (v) sessionStorage.setItem(API_KEY_STORAGE, v);
++      else sessionStorage.removeItem(API_KEY_STORAGE);
++    } catch {}
++  });
++}
++
++
+ function updateRateLimit(res) {
+   const el = $("rl");
+   if (!el || !res) return;
+diff --git a/public/privacy/index.html b/public/privacy/index.html
+index de53702..57b9cb7 100644
+--- a/public/privacy/index.html
++++ b/public/privacy/index.html
+@@ -60,7 +60,7 @@ Hash: HMAC-based derived value (stable for the same secret)</pre>
+       <div class="card">
+         <div class="small muted">API key storage (web UI)</div>
+         <p class="small muted" style="margin-top:8px;">
+-          The web pages store your API key locally in the browser (<code>sessionStorage</code>) so you don't have to retype it.
++          The web pages store your API key locally in the browser (<code>sessionStorage</code>) for the current tab session so you don't have to retype it.
+           Clear site data in your browser to remove it.
+         </p>
+       </div>
