@@ -14,20 +14,12 @@ function showToast(msg) {
 
 const apiKeyEl = $("api_key");
 
-const API_KEY_STORAGE = "e164_api_key";
-
-try {
-  const saved = sessionStorage.getItem(API_KEY_STORAGE);
-  if (saved && apiKeyEl) apiKeyEl.value = saved;
-} catch {}
+// Note: API keys are sensitive and should not be persisted in clear text in sessionStorage.
+// The api_key field is now kept only in memory for the duration of the page life cycle.
 
 if (apiKeyEl) {
   apiKeyEl.addEventListener("input", () => {
-    const v = (apiKeyEl.value || "").trim();
-    try {
-      if (v) sessionStorage.setItem(API_KEY_STORAGE, v);
-      else sessionStorage.removeItem(API_KEY_STORAGE);
-    } catch {}
+    // Intentionally do not persist the API key to sessionStorage or other storage.
   });
 }
 
