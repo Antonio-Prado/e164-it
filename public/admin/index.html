@@ -21,9 +21,63 @@
     .pill { display:inline-block; padding:4px 10px; border-radius:999px; border:1px solid #ddd; font-size:12px; }
     .actions { display:flex; gap: 10px; flex-wrap: wrap; align-items: center; }
     pre { white-space: pre-wrap; word-break: break-word; }
+    .tip{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      border: 1px solid #ccc;
+      color: #666;
+      font-size: 11px;
+      margin-left: 6px;
+      position: relative;
+      cursor: help;
+      flex: 0 0 auto;
+    }
+    .tip::before,
+    .tip::after{
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .12s ease, transform .12s ease;
+    }
+    .tip::after{
+      content: attr(data-tip);
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 8px);
+      transform: translateX(-50%) translateY(2px);
+      background: #fff;
+      color: #111;
+      border: 1px solid #ccc;
+      padding: 6px 8px;
+      border-radius: 8px;
+      font-size: 11px;
+      white-space: nowrap;
+      box-shadow: 0 6px 18px rgba(0,0,0,.12);
+      z-index: 20;
+    }
+    .tip::before{
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 2px);
+      transform: translateX(-50%) translateY(2px);
+      border: 6px solid transparent;
+      border-top-color: #ccc;
+    }
+    .tip:hover::before,
+    .tip:hover::after,
+    .tip:focus::before,
+    .tip:focus::after{
+      opacity: 1;
+      transform: translateX(-50%) translateY(-2px);
+    }
   </style>
   <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
   <meta name="theme-color" content="#0b1460" />
+  <script defer src="/build-meta.js?v=1"></script>
   <script defer src="/nav.js?v=5"></script>
 </head>
 <body>
@@ -61,7 +115,7 @@
   <div class="card">
     <div class="row">
       <div>
-        <label for="admin_token">Admin token</label>
+        <label for="admin_token">Admin token<span class="tip" tabindex="0" data-tip="Bearer token used to access admin endpoints.">?</span></label>
         <input id="admin_token" placeholder="Bearer token" autocomplete="off" />
         <div class="muted" style="font-size:12px; margin-top:6px;">
           Stored locally in your browser (sessionStorage). Never share it.
@@ -82,11 +136,11 @@
     <h2 style="margin:0 0 8px; font-size:18px;">Create key</h2>
     <div class="row">
       <div>
-        <label for="label">Label</label>
+        <label for="label">Label<span class="tip" tabindex="0" data-tip="Friendly name to identify the key.">?</span></label>
         <input id="label" placeholder="e.g. customer-acme" />
       </div>
       <div>
-        <label for="enabled">Enabled</label>
+        <label for="enabled">Enabled<span class="tip" tabindex="0" data-tip="Disable to pause the key without deleting it.">?</span></label>
         <select id="enabled">
           <option value="1" selected>enabled</option>
           <option value="0">disabled</option>
@@ -96,22 +150,22 @@
 
     <div class="row">
       <div>
-        <label for="rpm_parse">RPM parse</label>
+        <label for="rpm_parse">RPM parse<span class="tip" tabindex="0" data-tip="Requests per minute limit for /v1/parse.">?</span></label>
         <input id="rpm_parse" type="number" min="1" value="60" />
       </div>
       <div>
-        <label for="rpm_batch">RPM batch</label>
+        <label for="rpm_batch">RPM batch<span class="tip" tabindex="0" data-tip="Requests per minute limit for /v1/batch/parse.">?</span></label>
         <input id="rpm_batch" type="number" min="1" value="10" />
       </div>
     </div>
 
     <div class="row">
       <div>
-        <label for="max_batch_rows">Max batch rows</label>
+        <label for="max_batch_rows">Max batch rows<span class="tip" tabindex="0" data-tip="Maximum rows allowed per batch upload.">?</span></label>
         <input id="max_batch_rows" type="number" min="1" value="5000" />
       </div>
       <div>
-        <label for="max_batch_bytes">Max batch bytes</label>
+        <label for="max_batch_bytes">Max batch bytes<span class="tip" tabindex="0" data-tip="Maximum file size in bytes.">?</span></label>
         <input id="max_batch_bytes" type="number" min="1" value="1048576" />
       </div>
     </div>

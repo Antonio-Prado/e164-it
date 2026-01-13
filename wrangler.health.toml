@@ -1,0 +1,7 @@
+# Use this config to deploy the health-check Worker with cron triggers.
+name = "e164-it-health"
+main = "workers/health-check.js"
+compatibility_date = "2026-01-10"
+
+[triggers]
+crons = ["*/5 * * * *"]

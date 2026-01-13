@@ -13,6 +13,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://e164.it/" />
   <title>e164.it — E.164 formatter & validator</title>
+  <script defer src="/build-meta.js?v=1"></script>
   <script defer src="/nav.js?v=5"></script>
 </head>
 <body>
@@ -39,11 +40,11 @@
 <div class="card">
     <div class="row">
       <div>
-        <label for="input">Phone number (messy input is OK)</label>
+        <label for="input">Phone number (messy input is OK)<span class="tip" tabindex="0" data-tip="Paste any phone number; spaces and symbols are OK.">?</span></label>
         <input id="input" placeholder="e.g. 0039 333 123 4567" value="0039 333 123 4567" inputmode="tel" autocomplete="tel" />
       </div>
       <div>
-        <label for="region">Default region (if country code is missing)</label>
+        <label for="region">Default region (if country code is missing)<span class="tip" tabindex="0" data-tip="Used only when the number has no country code.">?</span></label>
         <select id="region">
           <option value="">(auto)</option>
           <option value="IT" selected>IT</option>
@@ -57,12 +58,12 @@
     </div>
 
     <div class="opts">
-      <label class="pill"><input type="checkbox" id="fmt_intl" checked> international</label>
-      <label class="pill"><input type="checkbox" id="fmt_nat" checked> national</label>
-      <label class="pill"><input type="checkbox" id="fmt_rfc" checked> rfc3966 (tel:)</label>
+      <label class="pill"><input type="checkbox" id="fmt_intl" checked> international<span class="tip" tabindex="0" data-tip="Include international format in the response.">?</span></label>
+      <label class="pill"><input type="checkbox" id="fmt_nat" checked> national<span class="tip" tabindex="0" data-tip="Include national format in the response.">?</span></label>
+      <label class="pill"><input type="checkbox" id="fmt_rfc" checked> rfc3966 (tel:)<span class="tip" tabindex="0" data-tip="Include tel: URI (RFC 3966).">?</span></label>
 
       <label class="pill">
-        Masking:
+        Masking:<span class="tip" tabindex="0" data-tip="Mask digits in the output (last2/last4).">?</span>
         <select id="mask" style="margin-left:6px; padding:4px 8px;">
           <option value="none" selected>none</option>
           <option value="last2">last2</option>
@@ -70,11 +71,11 @@
         </select>
       </label>
 
-      <label class="pill"><input type="checkbox" id="hash"> hash (HMAC)</label>
+      <label class="pill"><input type="checkbox" id="hash"> hash (HMAC)<span class="tip" tabindex="0" data-tip="Include HMAC hash if hashing is enabled.">?</span></label>
     </div>
 
     <div style="margin-top:12px;">
-      <label for="api_key">API key (optional)</label>
+      <label for="api_key">API key (optional)<span class="tip" tabindex="0" data-tip="Optional API key for authenticated requests.">?</span></label>
       <input id="api_key" placeholder="e164_..." autocomplete="off" />
       <div class="small muted" id="rl" style="margin-top:6px;">Rate limit: —</div>
     </div>
