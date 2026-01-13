@@ -99,7 +99,7 @@ export default {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       console.error(message);
-      return new Response(JSON.stringify({ ok: false, error: message }), {
+      return new Response(JSON.stringify({ ok: false, error: "Internal error" }), {
         status: 500,
         headers: { "content-type": "application/json" },
       });
