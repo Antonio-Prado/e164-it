@@ -47,7 +47,7 @@ export async function onRequest(context) {
   try {
     assertEnvSecrets(env);
   } catch (e) {
-    return json(500, { ok: false, error: { code: "misconfigured", message: String(e.message || e) } });
+    return json(500, { ok: false, error: { code: "misconfigured", message: "Server misconfigured." } });
   }
 
   // Admin endpoints
