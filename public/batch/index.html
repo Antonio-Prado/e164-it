@@ -45,17 +45,17 @@
 
         <div class="stack">
           <div>
-            <label for="file">CSV file</label>
+            <label for="file">CSV file<span class="tip" tabindex="0" data-tip="Upload a CSV file to process.">?</span></label>
             <input type="file" id="file" accept=".csv,text/csv" />
           </div>
 
           <div class="row">
             <div>
-              <label for="phone_column">Phone column (header name or 1-based index)</label>
+              <label for="phone_column">Phone column (header name or 1-based index)<span class="tip" tabindex="0" data-tip="Use the header name or a 1-based column index.">?</span></label>
               <input id="phone_column" placeholder="e.g. phone or 3" value="phone" />
             </div>
             <div>
-              <label for="region">Default region</label>
+              <label for="region">Default region<span class="tip" tabindex="0" data-tip="Used only when numbers lack a country code.">?</span></label>
               <select id="region">
                 <option value="">(auto)</option>
                 <option value="IT" selected>IT</option>
@@ -69,17 +69,17 @@
           </div>
 
           <div>
-            <label for="api_key">API key (optional)</label>
+            <label for="api_key">API key (optional)<span class="tip" tabindex="0" data-tip="Optional API key for authenticated requests.">?</span></label>
             <input id="api_key" placeholder="e164_..." autocomplete="off" />
             <div class="muted small" id="rl" style="margin-top:6px;">Rate limit: —</div>
             <div class="muted small" id="batch_stats">Batch stats: —</div>
           </div>
 
           <div class="actions">
-            <label class="pill"><input type="checkbox" id="has_header" checked> has header row</label>
+            <label class="pill"><input type="checkbox" id="has_header" checked> has header row<span class="tip" tabindex="0" data-tip="Check if the first row contains column names.">?</span></label>
 
             <label class="pill">
-              delimiter:
+              delimiter:<span class="tip" tabindex="0" data-tip="Auto-detect or pick the CSV delimiter.">?</span>
               <select id="delimiter">
                 <option value="auto" selected>auto</option>
                 <option value=",">comma</option>
@@ -89,7 +89,7 @@
             </label>
 
             <label class="pill">
-              masking:
+              masking:<span class="tip" tabindex="0" data-tip="Mask digits in the output (last2/last4).">?</span>
               <select id="mask">
                 <option value="none" selected>none</option>
                 <option value="last2">last2</option>
@@ -97,7 +97,7 @@
               </select>
             </label>
 
-            <label class="pill"><input type="checkbox" id="hash"> hash (HMAC)</label>
+            <label class="pill"><input type="checkbox" id="hash"> hash (HMAC)<span class="tip" tabindex="0" data-tip="Include HMAC hash if hashing is enabled.">?</span></label>
             <span id="status" class="pill" aria-live="polite">idle</span>
             <a href="/samples/" class="pill">Samples</a>
           </div>

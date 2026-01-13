@@ -137,6 +137,60 @@ label{
   letter-spacing: .2px;
 }
 
+.tip{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 11px;
+  margin-left: 6px;
+  position: relative;
+  cursor: help;
+  flex: 0 0 auto;
+}
+.tip::before,
+.tip::after{
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .12s ease, transform .12s ease;
+}
+.tip::after{
+  content: attr(data-tip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%) translateY(2px);
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 6px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  white-space: nowrap;
+  box-shadow: 0 6px 18px rgba(0,0,0,.2);
+  z-index: 20;
+}
+.tip::before{
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 2px);
+  transform: translateX(-50%) translateY(2px);
+  border: 6px solid transparent;
+  border-top-color: var(--border);
+}
+.tip:hover::before,
+.tip:hover::after,
+.tip:focus::before,
+.tip:focus::after{
+  opacity: 1;
+  transform: translateX(-50%) translateY(-2px);
+}
+
 input, select, button, textarea{
   font: inherit;
   padding: 10px 12px;
