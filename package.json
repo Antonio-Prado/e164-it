@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/Antonio-Prado/e164-it#readme",
   "dependencies": {
-    "libphonenumber-js": "^1.12.36"
+    "libphonenumber-js": "^1.12.41"
   },
   "devDependencies": {
     "wrangler": "^4.65.0"
