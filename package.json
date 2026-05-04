@@ -22,6 +22,6 @@
     "libphonenumber-js": "^1.12.42"
   },
   "devDependencies": {
-    "wrangler": "^4.85.0"
+    "wrangler": "^4.87.0"
   }
 }
