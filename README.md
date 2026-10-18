@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://e164.it">
-    <img src="https://e164.it/assets/e164-mark.svg?v=3" alt="e164.it" width="120">
+    <img src="public/assets/e164-mark.svg" alt="e164.it" width="120">
   </a>
 </p>
 
