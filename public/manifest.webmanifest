@@ -1,0 +1,15 @@
+{
+  "name": "e164.it",
+  "short_name": "e164.it",
+  "description": "E.164 phone number parser/formatter with VoIP- and CRM-friendly outputs.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "browser",
+  "background_color": "#0b0b0c",
+  "theme_color": "#0b0b0c",
+  "icons": [
+    { "src": "/favicon.svg?v=2", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/favicon-32.png", "sizes": "32x32", "type": "image/png" },
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}
