@@ -1,7 +1,8 @@
-# Use this config to deploy the health-check Worker with cron triggers.
+# Config for the health-check Worker. Cron triggers are disabled: each run
+# costs a KV write on the RL namespace (free plan: 1,000 writes/day).
 name = "e164-it-health"
 main = "workers/health-check.js"
 compatibility_date = "2026-01-10"
 
 [triggers]
-crons = ["*/5 * * * *"]
+crons = []
